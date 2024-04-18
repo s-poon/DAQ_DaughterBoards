@@ -30,7 +30,8 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include <stdint.h>
+#include "adc.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -61,6 +62,8 @@ extern "C" {
 #ifndef TX_APP_THREAD_AUTO_START
 #define TX_APP_THREAD_AUTO_START                TX_AUTO_START
 #endif
+
+#define NUM_ADC_CHANNELS                        8
 /* USER CODE END MTD */
 
 /* Exported macro ------------------------------------------------------------*/
@@ -73,11 +76,12 @@ extern "C" {
 UINT App_ThreadX_Init(VOID *memory_ptr);
 void MX_ThreadX_Init(void);
 /* USER CODE BEGIN EFP */
-
+void txMainThreadEntry(ULONG threadInput);
+void txAnalogThreadEntry(ULONG threadInput);
 /* USER CODE END EFP */
 
 /* USER CODE BEGIN 1 */
-void txMainThreadEntry(ULONG threadInput);
+extern TX_SEMAPHORE analogSemaphore;
 /* USER CODE END 1 */
 
 #ifdef __cplusplus

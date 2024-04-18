@@ -1,3 +1,4 @@
-../Core/Src/app_threadx.c:59:6:App_ThreadX_Init	3
-../Core/Src/app_threadx.c:88:6:MX_ThreadX_Init	1
-../Core/Src/app_threadx.c:102:6:txMainThreadEntry	1
+../Core/Src/app_threadx.c:64:6:App_ThreadX_Init	5
+../Core/Src/app_threadx.c:104:6:MX_ThreadX_Init	1
+../Core/Src/app_threadx.c:118:6:txMainThreadEntry	1
+../Core/Src/app_threadx.c:126:6:txAnalogThreadEntry	1

@@ -44,6 +44,12 @@
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
 TX_THREAD txMainThread;
+TX_THREAD txAnalogThread;
+
+TX_SEMAPHORE analogSemaphore;
+
+uint32_t adcValues[8];
+uint8_t analogRxData[16];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -69,12 +75,23 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
 	  return TX_POOL_ERROR;
   }
 
-  if (tx_thread_create(&txMainThread, "txMainThread", txMainThreadEntry, 0, pointer,
+  if(tx_byte_allocate(bytePool, (VOID**) &pointer, TX_APP_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS){
+	  return TX_POOL_ERROR;
+  }
+
+  if(tx_thread_create(&txMainThread, "txMainThread", txMainThreadEntry, 0, pointer,
                          TX_APP_STACK_SIZE, TX_APP_THREAD_PRIO, TX_APP_THREAD_PREEMPTION_THRESHOLD,
-                         TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS)
-    {
+                         TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS){
       return TX_THREAD_ERROR;
-    }
+  }
+
+  if(tx_thread_create(&txMainThread, "txAnalogThread", txAnalogThreadEntry, 0, pointer,
+                         TX_APP_STACK_SIZE, TX_APP_THREAD_PRIO, TX_APP_THREAD_PREEMPTION_THRESHOLD,
+                         TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS){
+      return TX_THREAD_ERROR;
+  }
+
+  tx_semaphore_create(&analogSemaphore, "analogSemaphore", 0);
   /* USER CODE END App_ThreadX_Init */
 
   return ret;
@@ -102,7 +119,17 @@ void MX_ThreadX_Init(void)
 void txMainThreadEntry(ULONG threadInput){
 
 	while(1){
-
+	    HAL_ADC_Start_DMA(&hadc1, adcValues, NUM_ADC_CHANNELS);
+	    tx_semaphore_get(&analogSemaphore, TX_WAIT_FOREVER);
 	}
 }
+
+void txAnalogThreadEntry(ULONG threadInput){
+
+    while(1){
+
+    }
+}
+
+
 /* USER CODE END 1 */
