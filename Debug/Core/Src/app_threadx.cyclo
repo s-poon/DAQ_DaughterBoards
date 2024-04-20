@@ -1,6 +1,6 @@
-../Core/Src/app_threadx.c:80:6:App_ThreadX_Init	7
-../Core/Src/app_threadx.c:132:6:MX_ThreadX_Init	1
-../Core/Src/app_threadx.c:146:6:txMainThreadEntry	1
-../Core/Src/app_threadx.c:155:6:txAnalogThreadEntry	1
-../Core/Src/app_threadx.c:167:6:txAeroThreadEntry	1
-../Core/Src/app_threadx.c:176:6:txCAN500HZThreadEntry	1
+../Core/Src/app_threadx.c:73:6:App_ThreadX_Init	1
+../Core/Src/app_threadx.c:125:6:MX_ThreadX_Init	1
+../Core/Src/app_threadx.c:139:6:txMainThreadEntry	1
+../Core/Src/app_threadx.c:148:6:txAnalogThreadEntry	1
+../Core/Src/app_threadx.c:160:6:txAeroThreadEntry	1
+../Core/Src/app_threadx.c:169:6:txCAN500HZThreadEntry	1

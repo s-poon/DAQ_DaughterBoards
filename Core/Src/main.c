@@ -25,7 +25,6 @@
 #include "fdcan.h"
 #include "i2c.h"
 #include "usart.h"
-#include "opamp.h"
 #include "spi.h"
 #include "tim.h"
 #include "gpio.h"
@@ -106,7 +105,6 @@ int main(void)
   MX_I2C1_Init();
   MX_I2C4_Init();
   MX_LPUART1_UART_Init();
-  MX_OPAMP1_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */

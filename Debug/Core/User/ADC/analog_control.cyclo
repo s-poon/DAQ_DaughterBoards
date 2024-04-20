@@ -1,0 +1,2 @@
+../Core/User/ADC/analog_control.c:21:6:SetDividers	1
+../Core/User/ADC/analog_control.c:30:6:HAL_ADC_ConvCpltCallback	1

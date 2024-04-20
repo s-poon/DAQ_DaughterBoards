@@ -5,23 +5,23 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
-../AZURE_RTOS/App/app_azure_rtos.c 
+../Core/User/app/threadx.c 
 
 OBJS += \
-./AZURE_RTOS/App/app_azure_rtos.o 
+./Core/User/app/threadx.o 
 
 C_DEPS += \
-./AZURE_RTOS/App/app_azure_rtos.d 
+./Core/User/app/threadx.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
-AZURE_RTOS/App/%.o AZURE_RTOS/App/%.su AZURE_RTOS/App/%.cyclo: ../AZURE_RTOS/App/%.c AZURE_RTOS/App/subdir.mk
+Core/User/app/%.o Core/User/app/%.su Core/User/app/%.cyclo: ../Core/User/app/%.c Core/User/app/subdir.mk
 	arm-none-eabi-gcc "$<" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DTX_INCLUDE_USER_DEFINE_FILE -DUSE_HAL_DRIVER -DSTM32G474xx -c -I../Core/Inc -I../Core/User/app -I../Core/User/aero -I../Core/User/adc -I../Core/User/ucr_common -I../AZURE_RTOS/App -I../Drivers/STM32G4xx_HAL_Driver/Inc -I../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I../Drivers/CMSIS/Include -I../Middlewares/ST/threadx/common/inc/ -I../Middlewares/ST/threadx/ports/cortex_m4/gnu/inc/ -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "$@"
 
-clean: clean-AZURE_RTOS-2f-App
+clean: clean-Core-2f-User-2f-app
 
-clean-AZURE_RTOS-2f-App:
-	-$(RM) ./AZURE_RTOS/App/app_azure_rtos.cyclo ./AZURE_RTOS/App/app_azure_rtos.d ./AZURE_RTOS/App/app_azure_rtos.o ./AZURE_RTOS/App/app_azure_rtos.su
+clean-Core-2f-User-2f-app:
+	-$(RM) ./Core/User/app/threadx.cyclo ./Core/User/app/threadx.d ./Core/User/app/threadx.o ./Core/User/app/threadx.su
 
-.PHONY: clean-AZURE_RTOS-2f-App
+.PHONY: clean-Core-2f-User-2f-app
 

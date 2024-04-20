@@ -33,8 +33,8 @@ extern "C" {
 #include <stdint.h>
 #include "adc.h"
 #include "fdcan.h"
-#include "analog_control.h"
-#include "aero_sensors.h"
+#include <analog_control.h>
+#include <aero_sensors.h>
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/

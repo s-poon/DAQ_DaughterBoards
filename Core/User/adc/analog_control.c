@@ -5,7 +5,7 @@
  *      Author: Steven
  */
 
-#include "analog_control.h"
+#include <analog_control.h>
 
 static uint32_t analogPins[8][2] = {
         {ANALOGSWITCH_1_GPIO_Port, ANALOGSWITCH_1_Pin},
@@ -25,4 +25,8 @@ void SetDividers(uint8_t voltageModes[]){
 //    }
     HAL_GPIO_WritePin(ANALOGSWITCH_1_GPIO_Port, ANALOGSWITCH_1_Pin, voltageModes[1]);
 
+}
+
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
+    tx_semaphore_put(&analogSemaphore);
 }

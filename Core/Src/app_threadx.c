@@ -55,13 +55,6 @@ uint8_t voltageDividerStates[8] = {
         SET_12V,
         SET_12V
 };
-TX_THREAD txMainThread;
-TX_THREAD txAnalogThread;
-TX_THREAD txAeroThread;
-TX_THREAD txCAN500HZThread;
-
-TX_SEMAPHORE analogSemaphore;
-TX_SEMAPHORE aeroSemaphore;
 
 uint32_t adcValues[8];
 uint8_t analogRxData[16];
@@ -80,45 +73,45 @@ uint8_t analogRxData[16];
 UINT App_ThreadX_Init(VOID *memory_ptr)
 {
   UINT ret = TX_SUCCESS;
-  /* USER CODE BEGIN App_ThreadX_MEM_POOL */
-  TX_BYTE_POOL *bytePool = (TX_BYTE_POOL*)memory_ptr;
-  CHAR *pointer;
-  /* USER CODE END App_ThreadX_MEM_POOL */
-
-  /* USER CODE BEGIN App_ThreadX_Init */
-  if(tx_byte_allocate(bytePool, (VOID**) &pointer, TX_APP_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS){
-	  return TX_POOL_ERROR;
-  }
-
-  if(tx_byte_allocate(bytePool, (VOID**) &pointer, TX_APP_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS){
-	  return TX_POOL_ERROR;
-  }
-
-  if(tx_thread_create(&txMainThread, "txMainThread", txMainThreadEntry, 0, pointer,
-                         TX_APP_STACK_SIZE, TX_APP_THREAD_PRIO, TX_APP_THREAD_PREEMPTION_THRESHOLD,
-                         TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS){
-      return TX_THREAD_ERROR;
-  }
-
-  if(tx_thread_create(&txMainThread, "txAnalogThread", txAnalogThreadEntry, 0, pointer,
-                         TX_APP_STACK_SIZE, TX_APP_THREAD_PRIO, TX_APP_THREAD_PREEMPTION_THRESHOLD,
-                         TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS){
-      return TX_THREAD_ERROR;
-  }
-
-  if(tx_thread_create(&txMainThread, "txAeroThread", txAeroThreadEntry, 0, pointer,
-                       TX_APP_STACK_SIZE, TX_APP_THREAD_PRIO, TX_APP_THREAD_PREEMPTION_THRESHOLD,
-                       TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS){
-        return TX_THREAD_ERROR;
-    }
-  if(tx_thread_create(&txMainThread, "txCAN500HZ", txCAN500HZThreadEntry, 0, pointer,
-                       TX_APP_STACK_SIZE, TX_APP_THREAD_PRIO, TX_APP_THREAD_PREEMPTION_THRESHOLD,
-                       TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS){
-        return TX_THREAD_ERROR;
-    }
-
-  tx_semaphore_create(&analogSemaphore, "analogSemaphore", 0);
-  tx_semaphore_create(&aeroSemaphore, "aeroSemaphore", 0);
+//  /* USER CODE BEGIN App_ThreadX_MEM_POOL */
+//  TX_BYTE_POOL *bytePool = (TX_BYTE_POOL*)memory_ptr;
+//  CHAR *pointer;
+//  /* USER CODE END App_ThreadX_MEM_POOL */
+//
+//  /* USER CODE BEGIN App_ThreadX_Init */
+//  if(tx_byte_allocate(bytePool, (VOID**) &pointer, TX_APP_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS){
+//	  return TX_POOL_ERROR;
+//  }
+//
+//  if(tx_byte_allocate(bytePool, (VOID**) &pointer, TX_APP_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS){
+//	  return TX_POOL_ERROR;
+//  }
+//
+//  if(tx_thread_create(&txMainThread, "txMainThread", txMainThreadEntry, 0, pointer,
+//                         TX_APP_STACK_SIZE, TX_APP_THREAD_PRIO, TX_APP_THREAD_PREEMPTION_THRESHOLD,
+//                         TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS){
+//      return TX_THREAD_ERROR;
+//  }
+//
+//  if(tx_thread_create(&txMainThread, "txAnalogThread", txAnalogThreadEntry, 0, pointer,
+//                         TX_APP_STACK_SIZE, TX_APP_THREAD_PRIO, TX_APP_THREAD_PREEMPTION_THRESHOLD,
+//                         TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS){
+//      return TX_THREAD_ERROR;
+//  }
+//
+//  if(tx_thread_create(&txMainThread, "txAeroThread", txAeroThreadEntry, 0, pointer,
+//                       TX_APP_STACK_SIZE, TX_APP_THREAD_PRIO, TX_APP_THREAD_PREEMPTION_THRESHOLD,
+//                       TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS){
+//        return TX_THREAD_ERROR;
+//    }
+//  if(tx_thread_create(&txMainThread, "txCAN500HZ", txCAN500HZThreadEntry, 0, pointer,
+//                       TX_APP_STACK_SIZE, TX_APP_THREAD_PRIO, TX_APP_THREAD_PREEMPTION_THRESHOLD,
+//                       TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS){
+//        return TX_THREAD_ERROR;
+//    }
+//
+//  tx_semaphore_create(&analogSemaphore, "analogSemaphore", 0);
+//  tx_semaphore_create(&aeroSemaphore, "aeroSemaphore", 0);
   /* USER CODE END App_ThreadX_Init */
 
   return ret;
@@ -153,14 +146,14 @@ void txMainThreadEntry(ULONG threadInput){
 }
 
 void txAnalogThreadEntry(ULONG threadInput){
-    SetDividers(voltageDividerStates);
+//    SetDividers(voltageDividerStates);
     while(1){
-        HAL_ADC_Start_DMA(&hadc1, adcValues, NUM_ADC_CHANNELS);
-        tx_semaphore_get(&analogSemaphore, TX_WAIT_FOREVER);
-//        data will be processed and sent over CAN here
-//        adcValues
-
-        tx_thread_sleep(2);
+//        HAL_ADC_Start_DMA(&hadc1, adcValues, NUM_ADC_CHANNELS);
+//        tx_semaphore_get(&analogSemaphore, TX_WAIT_FOREVER);
+////        data will be processed and sent over CAN here
+//        for(int i = 0; i < )
+//
+//        tx_thread_sleep(2);
     }
 }
 
