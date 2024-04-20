@@ -5,7 +5,7 @@
  *      Author: Steven
  */
 
-#include <aero_sensors.h>
+#include "aero_sensors.h"
 
 #define SENSOR_ADDRESS      0x6D
 #define SWITCH_ADDRESS      0b1110000

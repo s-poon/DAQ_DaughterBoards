@@ -34,8 +34,6 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 #define NUMBER_ANALOG_CHANNELS
-#define SET_12V         1
-#define SET_5V          0
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -45,16 +43,17 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
-uint8_t voltageDividerStates[8] = {
-        SET_12V,
-        SET_12V,
-        SET_12V,
-        SET_12V,
-        SET_12V,
-        SET_12V,
-        SET_12V,
-        SET_12V
+static analog_control_t lvl_shift = {
+  .pin_port = ANALOGSWITCH_1_GPIO_Port,
+  .pin      = ANALOGSWITCH_1_Pin
 };
+
+static analog_control_t group_of_lvl_shifters[] = {
+  lvl_shift
+};
+
+static uint8_t num_of_lvl_shifters = sizeof(group_of_lvl_shifters) / sizeof(analog_control_t);
+
 TX_THREAD txMainThread;
 TX_THREAD txAnalogThread;
 TX_THREAD txAeroThread;
@@ -152,8 +151,18 @@ void txMainThreadEntry(ULONG threadInput){
 	}
 }
 
+static void lvl_shifter_init(void)
+{
+  for (uint8_t i=0u; i<num_of_lvl_shifters; i++)
+  {
+    (void) set_divider_voltage_mode_12_volt(group_of_lvl_shifters[i]);
+  }
+}
+
 void txAnalogThreadEntry(ULONG threadInput){
-    SetDividers(voltageDividerStates);
+
+  lvl_shifter_init();
+
     while(1){
         HAL_ADC_Start_DMA(&hadc1, adcValues, NUM_ADC_CHANNELS);
         tx_semaphore_get(&analogSemaphore, TX_WAIT_FOREVER);

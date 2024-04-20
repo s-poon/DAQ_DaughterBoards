@@ -6,6 +6,7 @@
  */
 
 #include "analog_control.h"
+#include "sr_common.h"
 
 static uint32_t analogPins[8][2] = {
         {ANALOGSWITCH_1_GPIO_Port, ANALOGSWITCH_1_Pin},
@@ -25,4 +26,38 @@ void SetDividers(uint8_t voltageModes[]){
 //    }
     HAL_GPIO_WritePin(ANALOGSWITCH_1_GPIO_Port, ANALOGSWITCH_1_Pin, voltageModes[1]);
 
+}
+
+uint8_t set_divider_voltage_mode_12_volt(
+    analog_control_t* self)
+{
+    uint8_t retval = SR_OK;
+
+    if (NULL ==self)
+    {
+        retval = SR_NPTR;
+    }
+    else if (HAL_OK != HAL_GPIO_WritePin(&self.pin_port, self.pin, SET_12V))
+    {
+        retval = SR_NOT_OK;
+    }
+
+    return retval;
+}
+
+uint8_t set_divider_votlage_mode_5_volt(
+    analog_control_t* self)
+{
+    uint8_t retval = SR_OK;
+
+    if (NULL ==self)
+    {
+        retval = SR_NPTR;
+    }
+    else if (HAL_OK != HAL_GPIO_WritePin(&self.pin_port, self.pin, SET_5V))
+    {
+        retval = SR_NOT_OK;
+    }
+
+    return retval;
 }

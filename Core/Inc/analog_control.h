@@ -12,4 +12,14 @@
 
 
 void SetDividers(uint8_t voltageModes[]);
+
+// TODO: Move to a analog_control_datatypes.h file
+#define SET_12V         (1u)
+#define SET_5V          (0u)
+
+typedef struct {
+    GPIO_TypeDef    pin_port;
+    uint16_t        pin;
+}analog_control_t;
+
 #endif /* INC_ANALOG_CONTROL_H_ */
