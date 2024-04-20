@@ -15,7 +15,7 @@ uint8_t is_first_captured[4];
 
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim){
     uint8_t channel = 0;
-    uint8_t hal_channel = 0;
+    uint8_t hal_channel = 0u;
 
     if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1){
         channel = 0;
@@ -29,8 +29,6 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim){
     } else if(htim->Channel == HAL_TIM_ACTIVE_CHANNEL_4){
         channel = 3;
         hal_channel = TIM_CHANNEL_4;
-    } else {
-        Error_Handler();
     }
 
     if (is_first_captured[channel] == 0) {  // check if first rising edge to begin capture
@@ -42,8 +40,6 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim){
             difference[channel] = IC_Val2[channel] - IC_Val1[channel];
         } else if (IC_Val2[channel] < IC_Val1[channel]) {   // first capture after second robust check
             difference[channel] = ((100 - IC_Val1[channel]) + IC_Val2[channel]) + 1;
-        } else {
-            Error_Handler();
         }
 
 //        float refClock = TIMCLOCK/(PRESCALAR);

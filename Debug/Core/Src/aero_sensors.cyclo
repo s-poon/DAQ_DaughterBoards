@@ -1,0 +1,4 @@
+../Core/Src/aero_sensors.c:32:6:SetChannel	1
+../Core/Src/aero_sensors.c:37:6:TransmitToAll	1
+../Core/Src/aero_sensors.c:42:6:StartSensorReading	1
+../Core/Src/aero_sensors.c:47:9:ReadData	3

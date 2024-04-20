@@ -33,7 +33,9 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define NUMBER_ANALOG_CHANNELS
+#define SET_12V         1
+#define SET_5V          0
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -43,10 +45,23 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
+uint8_t voltageDividerStates[8] = {
+        SET_12V,
+        SET_12V,
+        SET_12V,
+        SET_12V,
+        SET_12V,
+        SET_12V,
+        SET_12V,
+        SET_12V
+};
 TX_THREAD txMainThread;
 TX_THREAD txAnalogThread;
+TX_THREAD txAeroThread;
+TX_THREAD txCAN500HZThread;
 
 TX_SEMAPHORE analogSemaphore;
+TX_SEMAPHORE aeroSemaphore;
 
 uint32_t adcValues[8];
 uint8_t analogRxData[16];
@@ -91,7 +106,19 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
       return TX_THREAD_ERROR;
   }
 
+  if(tx_thread_create(&txMainThread, "txAeroThread", txAeroThreadEntry, 0, pointer,
+                       TX_APP_STACK_SIZE, TX_APP_THREAD_PRIO, TX_APP_THREAD_PREEMPTION_THRESHOLD,
+                       TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS){
+        return TX_THREAD_ERROR;
+    }
+  if(tx_thread_create(&txMainThread, "txCAN500HZ", txCAN500HZThreadEntry, 0, pointer,
+                       TX_APP_STACK_SIZE, TX_APP_THREAD_PRIO, TX_APP_THREAD_PREEMPTION_THRESHOLD,
+                       TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS){
+        return TX_THREAD_ERROR;
+    }
+
   tx_semaphore_create(&analogSemaphore, "analogSemaphore", 0);
+  tx_semaphore_create(&aeroSemaphore, "aeroSemaphore", 0);
   /* USER CODE END App_ThreadX_Init */
 
   return ret;
@@ -118,18 +145,61 @@ void MX_ThreadX_Init(void)
 /* USER CODE BEGIN 1 */
 void txMainThreadEntry(ULONG threadInput){
 
+    HAL_FDCAN_Start(&hfdcan1);
 	while(1){
-	    HAL_ADC_Start_DMA(&hadc1, adcValues, NUM_ADC_CHANNELS);
-	    tx_semaphore_get(&analogSemaphore, TX_WAIT_FOREVER);
+	    HAL_GPIO_TogglePin(STATUS_LED_GPIO_Port, STATUS_LED_Pin);
+	    tx_thread_sleep(1000);
 	}
 }
 
 void txAnalogThreadEntry(ULONG threadInput){
+    SetDividers(voltageDividerStates);
+    while(1){
+        HAL_ADC_Start_DMA(&hadc1, adcValues, NUM_ADC_CHANNELS);
+        tx_semaphore_get(&analogSemaphore, TX_WAIT_FOREVER);
+//        data will be processed and sent over CAN here
+//        adcValues
+
+        tx_thread_sleep(2);
+    }
+}
+
+void txAeroThreadEntry(ULONG threadInput){
+
+    while(1){
+
+//        SetChannel(1);
+
+    }
+}
+
+void txCAN500HZThreadEntry(ULONG threadInput){
 
     while(1){
 
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 /* USER CODE END 1 */

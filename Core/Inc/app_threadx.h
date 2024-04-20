@@ -32,6 +32,9 @@ extern "C" {
 /* USER CODE BEGIN Includes */
 #include <stdint.h>
 #include "adc.h"
+#include "fdcan.h"
+#include "analog_control.h"
+#include "aero_sensors.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -78,6 +81,8 @@ void MX_ThreadX_Init(void);
 /* USER CODE BEGIN EFP */
 void txMainThreadEntry(ULONG threadInput);
 void txAnalogThreadEntry(ULONG threadInput);
+void txAeroThreadEntry(ULONG threadInput);
+void txCAN500HZThreadEntry(ULONG threadInput);
 /* USER CODE END EFP */
 
 /* USER CODE BEGIN 1 */
