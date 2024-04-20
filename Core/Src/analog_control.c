@@ -37,7 +37,7 @@ uint8_t set_divider_voltage_mode_12_volt(
     {
         retval = SR_NPTR;
     }
-    else if (HAL_OK != HAL_GPIO_WritePin(&self.pin_port, self.pin, SET_12V))
+    else if (HAL_OK != HAL_GPIO_WritePin(&(self->pin_port), self.pin, SET_12V))
     {
         retval = SR_NOT_OK;
     }
@@ -54,7 +54,7 @@ uint8_t set_divider_votlage_mode_5_volt(
     {
         retval = SR_NPTR;
     }
-    else if (HAL_OK != HAL_GPIO_WritePin(&self.pin_port, self.pin, SET_5V))
+    else if (HAL_OK != HAL_GPIO_WritePin(&(self->pin_port), self.pin, SET_5V))
     {
         retval = SR_NOT_OK;
     }

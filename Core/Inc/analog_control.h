@@ -13,6 +13,12 @@
 
 void SetDividers(uint8_t voltageModes[]);
 
+uint8_t set_divider_voltage_mode_12_volt(
+    analog_control_t* self);
+
+uint8_t set_divider_votlage_mode_5_volt(
+    analog_control_t* self);
+
 // TODO: Move to a analog_control_datatypes.h file
 #define SET_12V         (1u)
 #define SET_5V          (0u)
