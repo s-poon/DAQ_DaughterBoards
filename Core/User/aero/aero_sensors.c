@@ -7,6 +7,7 @@
 
 #include <aero_datatypes.h>
 #include <aero_sensors.h>
+#include "i2c.h"
 
 
 uint16_t pressureAddresses[3] = {

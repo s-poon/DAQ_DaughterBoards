@@ -24,4 +24,5 @@
 
 #define START_SENSOR        0x0A
 
+
 #endif /* USER_AERO_AERO_DATATYPES_H_ */

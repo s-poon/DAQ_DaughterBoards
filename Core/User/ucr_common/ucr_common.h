@@ -12,4 +12,9 @@
 #define UCR_NOT_OK          (1u)
 #define UCR_NPTR            (2u)
 
+typedef struct{
+	GPIO_TypeDef	port;
+	uint16_t		pin;
+}gpio_control_t;
+
 #endif /* USER_UCR_COMMON_UCR_COMMON_H_ */

@@ -1,2 +1,4 @@
-../Core/User/ADC/analog_control.c:21:6:SetDividers	1
-../Core/User/ADC/analog_control.c:30:6:HAL_ADC_ConvCpltCallback	1
+../Core/User/ADC/analog_control.c:55:6:HAL_ADC_ConvCpltCallback	1
+../Core/User/ADC/analog_control.c:59:9:setAnalogSwitches	3
+../Core/User/ADC/analog_control.c:74:9:set12VSensor	2
+../Core/User/ADC/analog_control.c:85:9:set5VSensor	2

@@ -66,7 +66,7 @@ extern "C" {
 #define TX_APP_THREAD_AUTO_START                TX_AUTO_START
 #endif
 
-#define NUM_ADC_CHANNELS                        8
+
 /* USER CODE END MTD */
 
 /* Exported macro ------------------------------------------------------------*/
@@ -79,10 +79,7 @@ extern "C" {
 UINT App_ThreadX_Init(VOID *memory_ptr);
 void MX_ThreadX_Init(void);
 /* USER CODE BEGIN EFP */
-void txMainThreadEntry(ULONG threadInput);
-void txAnalogThreadEntry(ULONG threadInput);
-void txAeroThreadEntry(ULONG threadInput);
-void txCAN500HZThreadEntry(ULONG threadInput);
+
 /* USER CODE END EFP */
 
 /* USER CODE BEGIN 1 */
