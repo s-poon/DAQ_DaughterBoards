@@ -5,9 +5,10 @@
  *      Author: Steven
  */
 #include "threadx.h"
-#include "aero_sensors.h"
 #include "ucr_common.h"
 #include "analog_control_datatypes.h"
+#include "aero_sensors.h"
+#include "frequency_sensors.h"
 
 
 TX_THREAD txMainThread;
@@ -18,6 +19,7 @@ TX_THREAD txCAN100HzThread;
 
 TX_SEMAPHORE analogSemaphore;
 TX_SEMAPHORE aeroSemaphore;
+TX_SEMAPHORE frequencySemaphore;
 
 
 static const uint8_t analogSwitchStates[NUM_ADC_CHANNELS] = {
@@ -33,6 +35,7 @@ static const uint8_t analogSwitchStates[NUM_ADC_CHANNELS] = {
 
 uint32_t adcValues[8];
 uint8_t analogRxData[16];
+uint8_t frequencyData[16];
 
 
 UINT ThreadX_Init(VOID *memory_ptr){
@@ -80,6 +83,7 @@ UINT ThreadX_Init(VOID *memory_ptr){
 
 	tx_semaphore_create(&analogSemaphore, "analogSemaphore", 0);
 	tx_semaphore_create(&aeroSemaphore, "aeroSemaphore", 0);
+	tx_semaphore_create(&frequencySemaphore, "frequencySemaphore", 0);
 	/* USER CODE END App_ThreadX_Init */
 
 	return ret;
@@ -134,8 +138,34 @@ void txCAN500HzThreadEntry(ULONG threadInput){
 }
 
 void txCAN100HzThreadEntry(ULONG threadInput){
-
-    while(10){
-
+	float refClock = TIMCLOCK/(PRESCALAR);
+	float frequency[4];
+    while(1){
+    	tx_semaphore_get(&frequencySemaphore, TX_WAIT_FOREVER);
+    	for(int i = 0; i < 4; i ++){
+			frequency[i] = refClock / difference[i];
+			frequencyData[i * 4] = frequency[i];
+			frequencyData[i * 4 + 1] = frequency[i] >> 8;
+			frequencyData[i * 4 + 2] = frequency[i] >> 16;
+			frequencyData[i * 4 + 3] = frequency[i] >> 24;
+    	}
+    	tx_semaphore_put(&frequencySemaphore);
+    	tx_thread_sleep(10);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

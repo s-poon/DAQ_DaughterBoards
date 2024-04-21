@@ -6,6 +6,8 @@
  */
 
 #include "analog_control.h"
+#include "threadx.h"
+#include "aero_sensors.h"
 
 
 static const gpio_control_t analogSwitch1 = {
@@ -54,6 +56,7 @@ static gpio_control_t analogSwitches[NUM_ADC_CHANNELS] = {
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
     tx_semaphore_put(&analogSemaphore);
+    TransmitToAll();
 }
 
 uint8_t setAnalogSwitches(

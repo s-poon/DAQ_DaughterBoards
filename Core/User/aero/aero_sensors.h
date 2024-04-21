@@ -16,9 +16,5 @@ typedef struct{
 	uint16_t temperature;
 }aeroData_t;
 
-void TransmitToAll();
-void StartSensorReading();
-void SetChannel(uint8_t sensor);
-uint8_t ReadData();
-
+uint8_t TransmitToAll();
 #endif /* INC_AERO_SENSORS_H_ */

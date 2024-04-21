@@ -28,6 +28,7 @@ Core/Startup \
 Core/User/adc \
 Core/User/aero \
 Core/User/app \
+Core/User/frequency \
 Drivers/STM32G4xx_HAL_Driver/Src \
 Middlewares/ST/threadx/common/src \
 Middlewares/ST/threadx/ports/cortex_m4/gnu/src \

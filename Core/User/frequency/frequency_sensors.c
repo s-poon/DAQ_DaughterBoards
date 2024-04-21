@@ -1,19 +1,24 @@
 /*
- * frequency.c
+ * frequency_sensors.c
  *
- *  Created on: Apr 17, 2024
- *      Author: Steven
+ *  Created on: Apr 20, 2024
+ *      Author: steve
  */
 
-#include "frequency.h"
+#include "frequency_sensors.h"
+#include "app_threadx.h"
+#include "threadx.h"
+#include "frequency_datatypes.h"
 
-uint32_t IC_Val1[4];
-uint32_t IC_Val2[4];
-uint32_t difference[4];
-double frequency[4];
-uint8_t is_first_captured[4];
+uint32_t IC_Val1[NUM_FREQUENCY_CHANNELS];
+uint32_t IC_Val2[NUM_FREQUENCY_CHANNELS];
+uint32_t difference[NUM_FREQUENCY_CHANNELS];
+uint8_t is_first_captured[NUM_FREQUENCY_CHANNELS];
 
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim){
+	if(TX_NO_INSTANCE == tx_semaphore_get(&frequencySemaphore, TX_NO_WAIT)){
+		return;
+	}
     uint8_t channel = 0;
     uint8_t hal_channel = 0u;
 
@@ -41,13 +46,14 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim){
         } else if (IC_Val2[channel] < IC_Val1[channel]) {   // first capture after second robust check
             difference[channel] = ((100 - IC_Val1[channel]) + IC_Val2[channel]) + 1;
         }
-
 //        float refClock = TIMCLOCK/(PRESCALAR);
 //        frequency[channel] = refClock / difference[channel];
         is_first_captured[channel] = 0;
     }
-
+    tx_semaphore_put(&frequencySemaphore);
 }
+
+
 
 
 

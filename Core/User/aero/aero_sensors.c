@@ -5,8 +5,9 @@
  *      Author: Steven
  */
 
-#include <aero_datatypes.h>
 #include <aero_sensors.h>
+#include <aero_datatypes.h>
+
 #include "i2c.h"
 
 
@@ -21,9 +22,10 @@ void SetChannel(uint8_t sensor){
     HAL_I2C_Master_Transmit(&hi2c4, SWITCH_ADDRESS, &data, 1, 1000);
 }
 
-void TransmitToAll(){
+uint8_t TransmitToAll(){
     uint8_t data = 0b00000111;
     HAL_I2C_Master_Transmit(&hi2c4, SWITCH_ADDRESS, &data, 1, 1000);
+    return UCR_OK;
 }
 
 void StartSensorReading(){
