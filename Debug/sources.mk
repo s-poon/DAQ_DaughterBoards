@@ -1,6 +1,6 @@
 ################################################################################
 # Automatically-generated file. Do not edit!
-# Toolchain: GNU Tools for STM32 (11.3.rel1)
+# Toolchain: GNU Tools for STM32 (12.3.rel1)
 ################################################################################
 
 ELF_SRCS := 
@@ -28,6 +28,7 @@ Core/Startup \
 Core/User/adc \
 Core/User/aero \
 Core/User/app \
+Core/User/can \
 Core/User/frequency \
 Drivers/STM32G4xx_HAL_Driver/Src \
 Middlewares/ST/threadx/common/src \

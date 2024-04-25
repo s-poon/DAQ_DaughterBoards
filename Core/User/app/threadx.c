@@ -9,6 +9,8 @@
 #include "analog_control_datatypes.h"
 #include "aero_sensors.h"
 #include "frequency_sensors.h"
+#include "can.h"
+#include "tim.h"
 
 
 TX_THREAD txMainThread;
@@ -33,8 +35,8 @@ static const uint8_t analogSwitchStates[NUM_ADC_CHANNELS] = {
 	SET_12V
 };
 
-uint32_t adcValues[8];
-uint8_t analogRxData[16];
+
+
 uint8_t frequencyData[16];
 
 
@@ -93,6 +95,11 @@ UINT ThreadX_Init(VOID *memory_ptr){
 void txMainThreadEntry(ULONG threadInput){
 
     HAL_FDCAN_Start(&hfdcan1);
+    HAL_TIM_IC_Start_IT(&htim2, TIM_CHANNEL_1);
+    HAL_TIM_IC_Start_IT(&htim2, TIM_CHANNEL_2);
+    HAL_TIM_IC_Start_IT(&htim2, TIM_CHANNEL_3);
+    HAL_TIM_IC_Start_IT(&htim2, TIM_CHANNEL_4);
+
 	while(1){
 	    HAL_GPIO_TogglePin(STATUS_LED_GPIO_Port, STATUS_LED_Pin);
 	    tx_thread_sleep(1000);
@@ -100,15 +107,27 @@ void txMainThreadEntry(ULONG threadInput){
 }
 
 void txAnalogThreadEntry(ULONG threadInput){
+    uint8_t analogRxData[16];
+    uint32_t adcValues[8];
+    setAnalogSwitches(analogSwitchStates);
 
+
+//    struct
     while(1){
         HAL_ADC_Start_DMA(&hadc1, adcValues, NUM_ADC_CHANNELS);
         tx_semaphore_get(&analogSemaphore, TX_WAIT_FOREVER);
-//        data will be processed and sent over CAN here
-        for(int i = 0; i < NUM_ADC_CHANNELS; i ++){
-        	analogRxData[i * 2] = adcValues[i];
-        	analogRxData[i * 2 + 1] = adcValues[i] >> 8;
-        }
+        struct ucr_01_front_analog_t analogStruct = {
+                .analog1 = adcValues[0],
+				.analog2 = adcValues[1],
+				.analog3 = adcValues[2],
+				.analog4 = adcValues[3],
+				.analog5 = adcValues[4],
+				.analog6 = adcValues[5],
+				.analog7 = adcValues[6],
+				.analog8 = adcValues[7]
+        };
+        ucr_01_front_analog_pack(analogRxData, &analogStruct, UCR_01_FRONT_ANALOG_LENGTH);
+
 
         tx_thread_sleep(2);
     }
@@ -117,7 +136,7 @@ void txAnalogThreadEntry(ULONG threadInput){
 void txAeroThreadEntry(ULONG threadInput){
 
     while(1){
-//    	TransmitToAll();
+    	TransmitToAll();
 //    	StartSensorReading();
 //    	SetChannel(1);
 //    	ReadData();
@@ -132,24 +151,42 @@ void txAeroThreadEntry(ULONG threadInput){
 
 void txCAN500HzThreadEntry(ULONG threadInput){
 
-    while(2){
+    while(1){
 
     }
 }
 
 void txCAN100HzThreadEntry(ULONG threadInput){
 	float refClock = TIMCLOCK/(PRESCALAR);
-	float frequency[4];
+	uint32_t frequency[4];
+	uint8_t frequencyData[16];
+	FDCAN_TxHeaderTypeDef frequencyHeader = {
+	        .Identifier = UCR_01_FRONT_ANALOG_FRAME_ID,
+	        .IdType = FDCAN_STANDARD_ID,
+	        .TxFrameType = FDCAN_DATA_FRAME,
+	        .DataLength = FDCAN_DLC_BYTES_16,
+	        .ErrorStateIndicator = FDCAN_ESI_ACTIVE,
+	        .BitRateSwitch = FDCAN_BRS_ON,
+	        .FDFormat = FDCAN_FD_CAN,
+	        .TxEventFifoControl = FDCAN_NO_TX_EVENTS,
+	        .MessageMarker = 0
+	};
+
     while(1){
     	tx_semaphore_get(&frequencySemaphore, TX_WAIT_FOREVER);
     	for(int i = 0; i < 4; i ++){
-			frequency[i] = refClock / difference[i];
-			frequencyData[i * 4] = frequency[i];
-			frequencyData[i * 4 + 1] = frequency[i] >> 8;
-			frequencyData[i * 4 + 2] = frequency[i] >> 16;
-			frequencyData[i * 4 + 3] = frequency[i] >> 24;
+			float value = refClock / difference[i];
+			frequency[i] = ucr_01_front_frequency_frequency1_encode(value);
     	}
+    	struct ucr_01_front_frequency_t frequencyStruct = {
+    	        .frequency1 = frequency[0],
+    	        .frequency2 = frequency[1],
+    	        .frequency3 = frequency[2],
+    	        .frequency4 = frequency[3]
+    	};
+    	ucr_01_front_frequency_pack(frequencyData, &frequencyStruct, UCR_01_FRONT_FREQUENCY_LENGTH);
     	tx_semaphore_put(&frequencySemaphore);
+    	HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &frequencyHeader, frequencyData);
     	tx_thread_sleep(10);
     }
 }

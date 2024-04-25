@@ -7,7 +7,7 @@
 
 #include <aero_sensors.h>
 #include <aero_datatypes.h>
-
+#include "ucr_common.h"
 #include "i2c.h"
 
 

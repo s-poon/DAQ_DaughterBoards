@@ -10,16 +10,12 @@
 
 #include "main.h"
 #include "analog_control_datatypes.h"
-#include "../ucr_common/ucr_common.h"
-//#include "ucr_common.h"
+#include "ucr_common.h"
 
 uint8_t setAnalogSwitches(
-	uint8_t switchSettings[NUM_ADC_CHANNELS]
+	const uint8_t switchSettings[NUM_ADC_CHANNELS]
 );
 
-uint8_t setAnalogSwitches(
-		uint8_t switchSettings[NUM_ADC_CHANNELS]
-);
 uint8_t set12VSensor(
 		gpio_control_t *self
 );

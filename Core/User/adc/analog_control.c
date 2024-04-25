@@ -5,6 +5,7 @@
  *      Author: Steven
  */
 
+
 #include "analog_control.h"
 #include "threadx.h"
 #include "aero_sensors.h"
@@ -60,7 +61,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 }
 
 uint8_t setAnalogSwitches(
-	uint8_t switchSettings[NUM_ADC_CHANNELS]
+	const uint8_t switchSettings[NUM_ADC_CHANNELS]
 ){
 	uint8_t retval = UCR_OK;
 

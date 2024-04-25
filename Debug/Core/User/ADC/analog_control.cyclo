@@ -1,4 +1,4 @@
-../Core/User/ADC/analog_control.c:57:6:HAL_ADC_ConvCpltCallback	1
-../Core/User/ADC/analog_control.c:62:9:setAnalogSwitches	3
-../Core/User/ADC/analog_control.c:77:9:set12VSensor	2
-../Core/User/ADC/analog_control.c:88:9:set5VSensor	2
+../Core/User/adc/analog_control.c:58:6:HAL_ADC_ConvCpltCallback	1
+../Core/User/adc/analog_control.c:63:9:setAnalogSwitches	3
+../Core/User/adc/analog_control.c:78:9:set12VSensor	2
+../Core/User/adc/analog_control.c:89:9:set5VSensor	2

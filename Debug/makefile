@@ -1,6 +1,6 @@
 ################################################################################
 # Automatically-generated file. Do not edit!
-# Toolchain: GNU Tools for STM32 (11.3.rel1)
+# Toolchain: GNU Tools for STM32 (12.3.rel1)
 ################################################################################
 
 -include ../makefile.init
@@ -13,6 +13,7 @@ RM := rm -rf
 -include Middlewares/ST/threadx/common/src/subdir.mk
 -include Drivers/STM32G4xx_HAL_Driver/Src/subdir.mk
 -include Core/User/frequency/subdir.mk
+-include Core/User/can/subdir.mk
 -include Core/User/app/subdir.mk
 -include Core/User/aero/subdir.mk
 -include Core/User/adc/subdir.mk
@@ -67,8 +68,8 @@ all: main-build
 main-build: DAQ_DaughterBoards.elf secondary-outputs
 
 # Tool invocations
-DAQ_DaughterBoards.elf DAQ_DaughterBoards.map: $(OBJS) $(USER_OBJS) C:\Users\steve\Documents\DAQ_DaughterBoards\STM32G474VETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "DAQ_DaughterBoards.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\steve\Documents\DAQ_DaughterBoards\STM32G474VETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="DAQ_DaughterBoards.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+DAQ_DaughterBoards.elf DAQ_DaughterBoards.map: $(OBJS) $(USER_OBJS) C:\Users\Steven\Documents\GitRepo\DAQ_DaughterBoards\STM32G474VETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "DAQ_DaughterBoards.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\Steven\Documents\GitRepo\DAQ_DaughterBoards\STM32G474VETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="DAQ_DaughterBoards.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

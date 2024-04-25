@@ -1,0 +1,4 @@
+# ninja log v5
+35	477	7355532127149565	CMakeFiles/DAQ_DaughterBoards.dir/Core/Src/stm32g4xx_hal_timebase_tim.c.obj	9256397291ce8f1e
+45	520	7355532127636730	CMakeFiles/DAQ_DaughterBoards.dir/Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_adc_ex.c.obj	3025d24ffd05beb9
+41	537	7355532127811194	CMakeFiles/DAQ_DaughterBoards.dir/Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_adc.c.obj	463479738bf1826f

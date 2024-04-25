@@ -1,0 +1,5 @@
+C:/Users/Steven/Documents/GitRepo/DAQ_DaughterBoards/build/Debug/CMakeFiles/DAQ_DaughterBoards.dir
+C:/Users/Steven/Documents/GitRepo/DAQ_DaughterBoards/build/Debug/CMakeFiles/edit_cache.dir
+C:/Users/Steven/Documents/GitRepo/DAQ_DaughterBoards/build/Debug/CMakeFiles/rebuild_cache.dir
+C:/Users/Steven/Documents/GitRepo/DAQ_DaughterBoards/build/Debug/cmake/stm32cubemx/CMakeFiles/edit_cache.dir
+C:/Users/Steven/Documents/GitRepo/DAQ_DaughterBoards/build/Debug/cmake/stm32cubemx/CMakeFiles/rebuild_cache.dir
