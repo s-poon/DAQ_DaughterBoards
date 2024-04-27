@@ -13,15 +13,23 @@
 #include "tim.h"
 
 
+
 TX_THREAD txMainThread;
 TX_THREAD txAnalogThread;
 TX_THREAD txAeroThread;
 TX_THREAD txCAN500HzThread;
 TX_THREAD txCAN100HzThread;
 
-TX_SEMAPHORE analogSemaphore;
-TX_SEMAPHORE aeroSemaphore;
-TX_SEMAPHORE frequencySemaphore;
+TX_SEMAPHORE semaphoreAnalog;
+TX_SEMAPHORE semaphoreAero;
+TX_SEMAPHORE semaphoreFrequency;
+
+TX_TIMER timerChannel1;
+TX_TIMER timerChannel2;
+TX_TIMER timerChannel3;
+TX_TIMER timerChannel4;
+
+TX_TIMER timers[NUM_FREQUENCY_CHANNELS];
 
 
 static const uint8_t analogSwitchStates[NUM_ADC_CHANNELS] = {
@@ -50,9 +58,6 @@ UINT ThreadX_Init(VOID *memory_ptr){
 	  return TX_POOL_ERROR;
 	}
 
-	if(tx_byte_allocate(bytePool, (VOID**) &pointer, TX_APP_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS){
-	  return TX_POOL_ERROR;
-	}
 
 	if(tx_thread_create(&txMainThread, "txMainThread", txMainThreadEntry, 0, pointer,
 						 TX_APP_STACK_SIZE, TX_APP_THREAD_PRIO, TX_APP_THREAD_PREEMPTION_THRESHOLD,
@@ -83,11 +88,26 @@ UINT ThreadX_Init(VOID *memory_ptr){
 		return TX_THREAD_ERROR;
 	}
 
-	tx_semaphore_create(&analogSemaphore, "analogSemaphore", 0);
-	tx_semaphore_create(&aeroSemaphore, "aeroSemaphore", 0);
-	tx_semaphore_create(&frequencySemaphore, "frequencySemaphore", 0);
-	/* USER CODE END App_ThreadX_Init */
+	tx_semaphore_create(&semaphoreAnalog, "semaphoreAnalog", 0);
+	tx_semaphore_create(&semaphoreAero, "semaphoreAero", 0);
+	tx_semaphore_create(&semaphoreFrequency, "semaphoreFrequency", 1);
 
+	tx_timer_create(&timerChannel1, "timerChannel1", timerExpiration, 0,
+	        FREQUENCY_RESET_TIME, 0, TX_NO_ACTIVATE);
+
+    tx_timer_create(&timerChannel2, "timerChannel2", timerExpiration, 0,
+            FREQUENCY_RESET_TIME, 1, TX_NO_ACTIVATE);
+
+    tx_timer_create(&timerChannel3, "timerChannel3", timerExpiration, 0,
+            FREQUENCY_RESET_TIME, 2, TX_NO_ACTIVATE);
+
+    tx_timer_create(&timerChannel4, "timerChannel4", timerExpiration, 0,
+            FREQUENCY_RESET_TIME, 3, TX_NO_ACTIVATE);
+
+    timers[0] = timerChannel1;
+    timers[1] = timerChannel2;
+    timers[2] = timerChannel3;
+    timers[3] = timerChannel4;
 	return ret;
 }
 
@@ -115,7 +135,7 @@ void txAnalogThreadEntry(ULONG threadInput){
 //    struct
     while(1){
         HAL_ADC_Start_DMA(&hadc1, adcValues, NUM_ADC_CHANNELS);
-        tx_semaphore_get(&analogSemaphore, TX_WAIT_FOREVER);
+        tx_semaphore_get(&semaphoreAnalog, TX_WAIT_FOREVER);
         struct ucr_01_front_analog_t analogStruct = {
                 .analog1 = adcValues[0],
 				.analog2 = adcValues[1],
@@ -127,8 +147,6 @@ void txAnalogThreadEntry(ULONG threadInput){
 				.analog8 = adcValues[7]
         };
         ucr_01_front_analog_pack(analogRxData, &analogStruct, UCR_01_FRONT_ANALOG_LENGTH);
-
-
         tx_thread_sleep(2);
     }
 }
@@ -157,7 +175,8 @@ void txCAN500HzThreadEntry(ULONG threadInput){
 }
 
 void txCAN100HzThreadEntry(ULONG threadInput){
-	float refClock = TIMCLOCK/(PRESCALAR);
+	uint8_t preScalar = htim2.Init.Prescaler + 1;
+    float refClock = TIMCLOCK/(preScalar);
 	uint32_t frequency[4];
 	uint8_t frequencyData[16];
 	FDCAN_TxHeaderTypeDef frequencyHeader = {
@@ -173,7 +192,7 @@ void txCAN100HzThreadEntry(ULONG threadInput){
 	};
 
     while(1){
-    	tx_semaphore_get(&frequencySemaphore, TX_WAIT_FOREVER);
+    	tx_semaphore_get(&semaphoreFrequency, TX_WAIT_FOREVER);
     	for(int i = 0; i < 4; i ++){
 			float value = refClock / difference[i];
 			frequency[i] = ucr_01_front_frequency_frequency1_encode(value);
@@ -185,7 +204,7 @@ void txCAN100HzThreadEntry(ULONG threadInput){
     	        .frequency4 = frequency[3]
     	};
     	ucr_01_front_frequency_pack(frequencyData, &frequencyStruct, UCR_01_FRONT_FREQUENCY_LENGTH);
-    	tx_semaphore_put(&frequencySemaphore);
+    	tx_semaphore_put(&semaphoreFrequency);
     	HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &frequencyHeader, frequencyData);
     	tx_thread_sleep(10);
     }

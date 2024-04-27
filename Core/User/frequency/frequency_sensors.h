@@ -10,5 +10,7 @@
 
 #include "main.h"
 
+void timerExpiration(UINT thing);
+
 extern uint32_t difference[4];
 #endif /* USER_FREQUENCY_FREQUENCY_SENSORS_H_ */

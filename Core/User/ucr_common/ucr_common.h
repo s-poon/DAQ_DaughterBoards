@@ -13,7 +13,6 @@
 #define UCR_NPTR            (2u)
 
 #define TIMCLOCK			(170000000)
-#define PRESCALAR			(1u)
 
 typedef struct{
 	GPIO_TypeDef	port;

@@ -9,14 +9,17 @@
 #include "app_threadx.h"
 #include "threadx.h"
 #include "frequency_datatypes.h"
+#include "tim.h"
+#include <stdbool.h>
 
 uint32_t IC_Val1[NUM_FREQUENCY_CHANNELS];
 uint32_t IC_Val2[NUM_FREQUENCY_CHANNELS];
 uint32_t difference[NUM_FREQUENCY_CHANNELS];
 uint8_t is_first_captured[NUM_FREQUENCY_CHANNELS];
 
+
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim){
-	if(TX_NO_INSTANCE == tx_semaphore_get(&frequencySemaphore, TX_NO_WAIT)){
+	if(TX_SUCCESS != tx_semaphore_get(&semaphoreFrequency, TX_NO_WAIT)){
 		return;
 	}
     uint8_t channel = 0;
@@ -36,21 +39,33 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim){
         hal_channel = TIM_CHANNEL_4;
     }
 
-    if (is_first_captured[channel] == 0) {  // check if first rising edge to begin capture
+    if (is_first_captured[channel] == false) {  // check if first rising edge to begin capture
+        tx_timer_activate(&timers[channel]);
         IC_Val1[channel] = HAL_TIM_ReadCapturedValue(htim, hal_channel);
-        is_first_captured[channel] = 1; // set flag to indicate next value will be second rising edge
-    } else if (is_first_captured[channel] == 1) {   // second rising edge
+        is_first_captured[channel] = true; // set flag to indicate next value will be second rising edge
+    } else if (is_first_captured[channel] == true) {   // second rising edge
+        tx_timer_deactivate(&timers[channel]);
         IC_Val2[channel] = HAL_TIM_ReadCapturedValue(htim, hal_channel);
         if (IC_Val2[channel] > IC_Val1[channel]) {  // first capture before second
             difference[channel] = IC_Val2[channel] - IC_Val1[channel];
         } else if (IC_Val2[channel] < IC_Val1[channel]) {   // first capture after second robust check
-            difference[channel] = ((100 - IC_Val1[channel]) + IC_Val2[channel]) + 1;
+            difference[channel] = ((htim->Init.Period - IC_Val1[channel]) + IC_Val2[channel]) + 1;
         }
-//        float refClock = TIMCLOCK/(PRESCALAR);
-//        frequency[channel] = refClock / difference[channel];
-        is_first_captured[channel] = 0;
+        is_first_captured[channel] = false;
     }
-    tx_semaphore_put(&frequencySemaphore);
+    tx_semaphore_put(&semaphoreFrequency);
+    tx_timer_change(&timers[channel], FREQUENCY_RESET_TIME, 0);
+}
+
+void timerExpiration(UINT channel){
+    if(TX_SUCCESS != tx_semaphore_get(&semaphoreFrequency, TX_NO_WAIT)){
+        return;
+    }
+    is_first_captured[channel] = false;
+    difference[channel] = 0;
+    tx_timer_deactivate(&timers[channel]);
+    tx_semaphore_put(&semaphoreFrequency);
+    return;
 }
 
 

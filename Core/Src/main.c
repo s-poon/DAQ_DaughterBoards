@@ -105,6 +105,10 @@ int main(void)
   MX_I2C1_Init();
   MX_I2C4_Init();
   MX_LPUART1_UART_Init();
+  MX_TIM7_Init();
+  MX_TIM15_Init();
+  MX_TIM16_Init();
+  MX_TIM17_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
