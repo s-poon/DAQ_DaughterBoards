@@ -1,2 +1,2 @@
-../Core/User/frequency/frequency_sensors.c:21:6:HAL_TIM_IC_CaptureCallback	10
-../Core/User/frequency/frequency_sensors.c:60:6:timerExpiration	2
+../Core/User/frequency/frequency_sensors.c:26:6:HAL_TIM_IC_CaptureCallback	10
+../Core/User/frequency/frequency_sensors.c:77:6:timerExpiration	2

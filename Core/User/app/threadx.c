@@ -192,7 +192,9 @@ void txCAN100HzThreadEntry(ULONG threadInput){
 	};
 
     while(1){
+        // Acquire the semaphore
     	tx_semaphore_get(&semaphoreFrequency, TX_WAIT_FOREVER);
+    	// Convert the data to frequency and encode it
     	for(int i = 0; i < 4; i ++){
 			float value = refClock / difference[i];
 			frequency[i] = ucr_01_front_frequency_frequency1_encode(value);
