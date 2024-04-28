@@ -64,6 +64,7 @@ void timerExpiration(UINT channel){
     is_first_captured[channel] = false;
     difference[channel] = 0;
     tx_timer_deactivate(&timers[channel]);
+    tx_timer_change(&timers[channel], FREQUENCY_RESET_TIME, 0);
     tx_semaphore_put(&semaphoreFrequency);
     return;
 }
