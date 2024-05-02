@@ -9,8 +9,8 @@
 #include "analog_control_datatypes.h"
 #include "aero_sensors.h"
 #include "frequency_sensors.h"
-#include "can.h"
 #include "tim.h"
+#include "../../vendor_generated/can_tools/can.h"
 
 
 
