@@ -43,7 +43,7 @@ uint8_t frequencyData[16];
 
 
 UINT ThreadX_Init(VOID *memory_ptr){
-    UINT ret = TX_SUCCESS;
+    UINT retVal = TX_SUCCESS;
 
 	TX_BYTE_POOL *bytePool = (TX_BYTE_POOL*)memory_ptr;
 	CHAR *pointer;
@@ -86,7 +86,7 @@ UINT ThreadX_Init(VOID *memory_ptr){
 	tx_semaphore_create(&semaphoreAero, "semaphoreAero", 0);
 	tx_semaphore_create(&semaphoreFrequency, "semaphoreFrequency", 1);
 
-	return ret;
+	return retVal;
 }
 
 
@@ -105,12 +105,22 @@ void txMainThreadEntry(ULONG threadInput){
 }
 
 void txAnalogThreadEntry(ULONG threadInput){
-    uint8_t analogRxData[16];
-    uint32_t adcValues[8];
+    uint8_t analogRxData[UCR_01_FRONT_ANALOG_LENGTH];
+    uint32_t adcValues[NUM_ADC_CHANNELS];
     setAnalogSwitches(analogSwitchStates);
 
+    FDCAN_TxHeaderTypeDef analogHeader = {
+            .Identifier = UCR_01_FRONT_ANALOG_FRAME_ID,
+            .IdType = FDCAN_STANDARD_ID,
+            .TxFrameType = FDCAN_DATA_FRAME,
+            .DataLength = FDCAN_DLC_BYTES_16,
+            .ErrorStateIndicator = FDCAN_ESI_ACTIVE,
+            .BitRateSwitch = FDCAN_BRS_ON,
+            .FDFormat = FDCAN_FD_CAN,
+            .TxEventFifoControl = FDCAN_NO_TX_EVENTS,
+            .MessageMarker = 0
+    };
 
-//    struct
     while(1){
         HAL_ADC_Start_DMA(&hadc1, adcValues, NUM_ADC_CHANNELS);
         tx_semaphore_get(&semaphoreAnalog, TX_WAIT_FOREVER);
@@ -125,6 +135,7 @@ void txAnalogThreadEntry(ULONG threadInput){
 				.analog8 = adcValues[7]
         };
         ucr_01_front_analog_pack(analogRxData, &analogStruct, UCR_01_FRONT_ANALOG_LENGTH);
+        HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &analogHeader, analogRxData);
         tx_thread_sleep(2);
     }
 }
@@ -161,7 +172,7 @@ void txCAN100HzThreadEntry(ULONG threadInput){
 	uint32_t frequency[4];
 	uint8_t frequencyData[16];
 	FDCAN_TxHeaderTypeDef frequencyHeader = {
-	        .Identifier = UCR_01_FRONT_ANALOG_FRAME_ID,
+	        .Identifier = UCR_01_FRONT_FREQUENCY_FRAME_ID,
 	        .IdType = FDCAN_STANDARD_ID,
 	        .TxFrameType = FDCAN_DATA_FRAME,
 	        .DataLength = FDCAN_DLC_BYTES_16,
