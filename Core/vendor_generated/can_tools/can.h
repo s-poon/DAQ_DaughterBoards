@@ -5,8 +5,8 @@
  *      Author: Steven
  */
 
-#ifndef USER_CAN_CAN_H_
-#define USER_CAN_CAN_H_
+#ifndef VENDOR_GENERATED_CAN_TOOLS_CAN_H_
+#define VENDOR_GENERATED_CAN_TOOLS_CAN_H_
 
 /**
  * The MIT License (MIT)
@@ -1625,4 +1625,4 @@ bool ucr_01_rear_aero_temperature3_is_in_range(uint16_t value);
 #endif
 
 
-#endif /* USER_CAN_CAN_H_ */
+#endif /* VENDOR_GENERATED_CAN_TOOLS_CAN_H_ */

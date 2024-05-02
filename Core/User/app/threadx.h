@@ -9,6 +9,7 @@
 #define USER_APP_THREADX_H_
 
 #include "app_threadx.h"
+#include "frequency_datatypes.h"
 
 
 UINT ThreadX_Init(VOID *memory_ptr);
@@ -21,7 +22,9 @@ void txCAN100HzThreadEntry(ULONG threadInput);
 void txCAN50HzThreadEntry(ULONG threadInput);
 void txCAN10HzThreadEntry(ULONG threadInput);
 
-extern TX_SEMAPHORE analogSemaphore;
-extern TX_SEMAPHORE aeroSemaphore;
-extern TX_SEMAPHORE frequencySemaphore;
+extern TX_SEMAPHORE semaphoreAnalog;
+extern TX_SEMAPHORE semaphoreAero;
+extern TX_SEMAPHORE semaphoreFrequency;
+
+
 #endif /* USER_APP_THREADX_H_ */

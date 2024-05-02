@@ -56,7 +56,7 @@ static gpio_control_t analogSwitches[NUM_ADC_CHANNELS] = {
 };
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
-    tx_semaphore_put(&analogSemaphore);
+    tx_semaphore_put(&semaphoreAnalog);
     TransmitToAll();
 }
 

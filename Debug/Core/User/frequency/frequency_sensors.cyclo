@@ -1,1 +1,4 @@
-../Core/User/frequency/frequency_sensors.c:18:6:HAL_TIM_IC_CaptureCallback	10
+../Core/User/frequency/frequency_sensors.c:22:9:FrequencyInit	2
+../Core/User/frequency/frequency_sensors.c:52:6:HAL_TIM_IC_CaptureCallback	5
+../Core/User/frequency/frequency_sensors.c:75:16:CalculateFrequency	6
+../Core/User/frequency/frequency_sensors.c:124:6:timerExpirationFrequency	2
