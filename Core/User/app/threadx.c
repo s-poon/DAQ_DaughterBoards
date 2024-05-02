@@ -24,12 +24,6 @@ TX_SEMAPHORE semaphoreAnalog;
 TX_SEMAPHORE semaphoreAero;
 TX_SEMAPHORE semaphoreFrequency;
 
-TX_TIMER timerChannel1;
-TX_TIMER timerChannel2;
-TX_TIMER timerChannel3;
-TX_TIMER timerChannel4;
-
-TX_TIMER timers[NUM_FREQUENCY_CHANNELS];
 
 
 static const uint8_t analogSwitchStates[NUM_ADC_CHANNELS] = {
@@ -92,22 +86,6 @@ UINT ThreadX_Init(VOID *memory_ptr){
 	tx_semaphore_create(&semaphoreAero, "semaphoreAero", 0);
 	tx_semaphore_create(&semaphoreFrequency, "semaphoreFrequency", 1);
 
-	tx_timer_create(&timerChannel1, "timerChannel1", timerExpiration, 0,
-	        FREQUENCY_RESET_TIME, 0, TX_NO_ACTIVATE);
-
-    tx_timer_create(&timerChannel2, "timerChannel2", timerExpiration, 0,
-            FREQUENCY_RESET_TIME, 1, TX_NO_ACTIVATE);
-
-    tx_timer_create(&timerChannel3, "timerChannel3", timerExpiration, 0,
-            FREQUENCY_RESET_TIME, 2, TX_NO_ACTIVATE);
-
-    tx_timer_create(&timerChannel4, "timerChannel4", timerExpiration, 0,
-            FREQUENCY_RESET_TIME, 3, TX_NO_ACTIVATE);
-
-    timers[0] = timerChannel1;
-    timers[1] = timerChannel2;
-    timers[2] = timerChannel3;
-    timers[3] = timerChannel4;
 	return ret;
 }
 
@@ -175,6 +153,9 @@ void txCAN500HzThreadEntry(ULONG threadInput){
 }
 
 void txCAN100HzThreadEntry(ULONG threadInput){
+    if(UCR_OK != FrequencyInit()){
+
+    }
 	uint8_t preScalar = htim2.Init.Prescaler + 1;
     float refClock = TIMCLOCK/(preScalar);
 	uint32_t frequency[4];

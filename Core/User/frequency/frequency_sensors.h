@@ -10,7 +10,10 @@
 
 #include "main.h"
 
+
+
 void timerExpiration(UINT thing);
+uint8_t FrequencyInit(void);
 
 extern uint32_t difference[4];
 #endif /* USER_FREQUENCY_FREQUENCY_SENSORS_H_ */

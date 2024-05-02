@@ -8,7 +8,18 @@
 #ifndef USER_FREQUENCY_FREQUENCY_DATATYPES_H_
 #define USER_FREQUENCY_FREQUENCY_DATATYPES_H_
 
+#include <stdbool.h>
+#include <stdint.h>
+#include "threadx.h"
+
 #define NUM_FREQUENCY_CHANNELS		(4u)
 #define FREQUENCY_RESET_TIME        (500u)
+
+typedef struct{
+        uint32_t firstValue;
+        uint32_t secondValue;
+        bool isFirstCapture;
+        TX_TIMER resetTimer;
+}frequency_t;
 
 #endif /* USER_FREQUENCY_FREQUENCY_DATATYPES_H_ */
