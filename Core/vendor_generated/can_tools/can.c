@@ -39,6 +39,15 @@
 
 #include <string.h>
 
+#include "can.h"
+
+static inline uint8_t pack_left_shift_u8(
+    uint8_t value,
+    uint8_t shift,
+    uint8_t mask)
+{
+    return (uint8_t)((uint8_t)(value << shift) & mask);
+}
 
 static inline uint8_t pack_left_shift_u16(
     uint16_t value,
@@ -309,211 +318,6 @@ bool ucr_01_front_analog_analog8_is_in_range(uint16_t value)
     return (true);
 }
 
-int ucr_01_rear_analog_pack(
-    uint8_t *dst_p,
-    const struct ucr_01_rear_analog_t *src_p,
-    size_t size)
-{
-    if (size < 16u) {
-        return (-EINVAL);
-    }
-
-    memset(&dst_p[0], 0, 16);
-
-    dst_p[0] |= pack_left_shift_u16(src_p->analog1, 0u, 0xffu);
-    dst_p[1] |= pack_right_shift_u16(src_p->analog1, 8u, 0xffu);
-    dst_p[2] |= pack_left_shift_u16(src_p->analog2, 0u, 0xffu);
-    dst_p[3] |= pack_right_shift_u16(src_p->analog2, 8u, 0xffu);
-    dst_p[4] |= pack_left_shift_u16(src_p->analog3, 0u, 0xffu);
-    dst_p[5] |= pack_right_shift_u16(src_p->analog3, 8u, 0xffu);
-    dst_p[6] |= pack_left_shift_u16(src_p->analog4, 0u, 0xffu);
-    dst_p[7] |= pack_right_shift_u16(src_p->analog4, 8u, 0xffu);
-    dst_p[8] |= pack_left_shift_u16(src_p->analog5, 0u, 0xffu);
-    dst_p[9] |= pack_right_shift_u16(src_p->analog5, 8u, 0xffu);
-    dst_p[10] |= pack_left_shift_u16(src_p->analog6, 0u, 0xffu);
-    dst_p[11] |= pack_right_shift_u16(src_p->analog6, 8u, 0xffu);
-    dst_p[12] |= pack_left_shift_u16(src_p->analog7, 0u, 0xffu);
-    dst_p[13] |= pack_right_shift_u16(src_p->analog7, 8u, 0xffu);
-    dst_p[14] |= pack_left_shift_u16(src_p->analog8, 0u, 0xffu);
-    dst_p[15] |= pack_right_shift_u16(src_p->analog8, 8u, 0xffu);
-
-    return (16);
-}
-
-int ucr_01_rear_analog_unpack(
-    struct ucr_01_rear_analog_t *dst_p,
-    const uint8_t *src_p,
-    size_t size)
-{
-    if (size < 16u) {
-        return (-EINVAL);
-    }
-
-    dst_p->analog1 = unpack_right_shift_u16(src_p[0], 0u, 0xffu);
-    dst_p->analog1 |= unpack_left_shift_u16(src_p[1], 8u, 0xffu);
-    dst_p->analog2 = unpack_right_shift_u16(src_p[2], 0u, 0xffu);
-    dst_p->analog2 |= unpack_left_shift_u16(src_p[3], 8u, 0xffu);
-    dst_p->analog3 = unpack_right_shift_u16(src_p[4], 0u, 0xffu);
-    dst_p->analog3 |= unpack_left_shift_u16(src_p[5], 8u, 0xffu);
-    dst_p->analog4 = unpack_right_shift_u16(src_p[6], 0u, 0xffu);
-    dst_p->analog4 |= unpack_left_shift_u16(src_p[7], 8u, 0xffu);
-    dst_p->analog5 = unpack_right_shift_u16(src_p[8], 0u, 0xffu);
-    dst_p->analog5 |= unpack_left_shift_u16(src_p[9], 8u, 0xffu);
-    dst_p->analog6 = unpack_right_shift_u16(src_p[10], 0u, 0xffu);
-    dst_p->analog6 |= unpack_left_shift_u16(src_p[11], 8u, 0xffu);
-    dst_p->analog7 = unpack_right_shift_u16(src_p[12], 0u, 0xffu);
-    dst_p->analog7 |= unpack_left_shift_u16(src_p[13], 8u, 0xffu);
-    dst_p->analog8 = unpack_right_shift_u16(src_p[14], 0u, 0xffu);
-    dst_p->analog8 |= unpack_left_shift_u16(src_p[15], 8u, 0xffu);
-
-    return (0);
-}
-
-int ucr_01_rear_analog_init(struct ucr_01_rear_analog_t *msg_p)
-{
-    if (msg_p == NULL) return -1;
-
-    memset(msg_p, 0, sizeof(struct ucr_01_rear_analog_t));
-
-    return 0;
-}
-
-uint16_t ucr_01_rear_analog_analog1_encode(double value)
-{
-    return (uint16_t)(value);
-}
-
-double ucr_01_rear_analog_analog1_decode(uint16_t value)
-{
-    return ((double)value);
-}
-
-bool ucr_01_rear_analog_analog1_is_in_range(uint16_t value)
-{
-    (void)value;
-
-    return (true);
-}
-
-uint16_t ucr_01_rear_analog_analog2_encode(double value)
-{
-    return (uint16_t)(value);
-}
-
-double ucr_01_rear_analog_analog2_decode(uint16_t value)
-{
-    return ((double)value);
-}
-
-bool ucr_01_rear_analog_analog2_is_in_range(uint16_t value)
-{
-    (void)value;
-
-    return (true);
-}
-
-uint16_t ucr_01_rear_analog_analog3_encode(double value)
-{
-    return (uint16_t)(value);
-}
-
-double ucr_01_rear_analog_analog3_decode(uint16_t value)
-{
-    return ((double)value);
-}
-
-bool ucr_01_rear_analog_analog3_is_in_range(uint16_t value)
-{
-    (void)value;
-
-    return (true);
-}
-
-uint16_t ucr_01_rear_analog_analog4_encode(double value)
-{
-    return (uint16_t)(value);
-}
-
-double ucr_01_rear_analog_analog4_decode(uint16_t value)
-{
-    return ((double)value);
-}
-
-bool ucr_01_rear_analog_analog4_is_in_range(uint16_t value)
-{
-    (void)value;
-
-    return (true);
-}
-
-uint16_t ucr_01_rear_analog_analog5_encode(double value)
-{
-    return (uint16_t)(value);
-}
-
-double ucr_01_rear_analog_analog5_decode(uint16_t value)
-{
-    return ((double)value);
-}
-
-bool ucr_01_rear_analog_analog5_is_in_range(uint16_t value)
-{
-    (void)value;
-
-    return (true);
-}
-
-uint16_t ucr_01_rear_analog_analog6_encode(double value)
-{
-    return (uint16_t)(value);
-}
-
-double ucr_01_rear_analog_analog6_decode(uint16_t value)
-{
-    return ((double)value);
-}
-
-bool ucr_01_rear_analog_analog6_is_in_range(uint16_t value)
-{
-    (void)value;
-
-    return (true);
-}
-
-uint16_t ucr_01_rear_analog_analog7_encode(double value)
-{
-    return (uint16_t)(value);
-}
-
-double ucr_01_rear_analog_analog7_decode(uint16_t value)
-{
-    return ((double)value);
-}
-
-bool ucr_01_rear_analog_analog7_is_in_range(uint16_t value)
-{
-    (void)value;
-
-    return (true);
-}
-
-uint16_t ucr_01_rear_analog_analog8_encode(double value)
-{
-    return (uint16_t)(value);
-}
-
-double ucr_01_rear_analog_analog8_decode(uint16_t value)
-{
-    return ((double)value);
-}
-
-bool ucr_01_rear_analog_analog8_is_in_range(uint16_t value)
-{
-    (void)value;
-
-    return (true);
-}
-
 int ucr_01_front_frequency_pack(
     uint8_t *dst_p,
     const struct ucr_01_front_frequency_t *src_p,
@@ -651,169 +455,45 @@ bool ucr_01_front_frequency_frequency4_is_in_range(uint32_t value)
     return (true);
 }
 
-int ucr_01_rear_frequency_pack(
-    uint8_t *dst_p,
-    const struct ucr_01_rear_frequency_t *src_p,
-    size_t size)
-{
-    if (size < 16u) {
-        return (-EINVAL);
-    }
-
-    memset(&dst_p[0], 0, 16);
-
-    dst_p[0] |= pack_left_shift_u32(src_p->frequency1, 0u, 0xffu);
-    dst_p[1] |= pack_right_shift_u32(src_p->frequency1, 8u, 0xffu);
-    dst_p[2] |= pack_right_shift_u32(src_p->frequency1, 16u, 0xffu);
-    dst_p[3] |= pack_right_shift_u32(src_p->frequency1, 24u, 0xffu);
-    dst_p[4] |= pack_left_shift_u32(src_p->frequency2, 0u, 0xffu);
-    dst_p[5] |= pack_right_shift_u32(src_p->frequency2, 8u, 0xffu);
-    dst_p[6] |= pack_right_shift_u32(src_p->frequency2, 16u, 0xffu);
-    dst_p[7] |= pack_right_shift_u32(src_p->frequency2, 24u, 0xffu);
-    dst_p[8] |= pack_left_shift_u32(src_p->frequency3, 0u, 0xffu);
-    dst_p[9] |= pack_right_shift_u32(src_p->frequency3, 8u, 0xffu);
-    dst_p[10] |= pack_right_shift_u32(src_p->frequency3, 16u, 0xffu);
-    dst_p[11] |= pack_right_shift_u32(src_p->frequency3, 24u, 0xffu);
-    dst_p[12] |= pack_left_shift_u32(src_p->frequency4, 0u, 0xffu);
-    dst_p[13] |= pack_right_shift_u32(src_p->frequency4, 8u, 0xffu);
-    dst_p[14] |= pack_right_shift_u32(src_p->frequency4, 16u, 0xffu);
-    dst_p[15] |= pack_right_shift_u32(src_p->frequency4, 24u, 0xffu);
-
-    return (16);
-}
-
-int ucr_01_rear_frequency_unpack(
-    struct ucr_01_rear_frequency_t *dst_p,
-    const uint8_t *src_p,
-    size_t size)
-{
-    if (size < 16u) {
-        return (-EINVAL);
-    }
-
-    dst_p->frequency1 = unpack_right_shift_u32(src_p[0], 0u, 0xffu);
-    dst_p->frequency1 |= unpack_left_shift_u32(src_p[1], 8u, 0xffu);
-    dst_p->frequency1 |= unpack_left_shift_u32(src_p[2], 16u, 0xffu);
-    dst_p->frequency1 |= unpack_left_shift_u32(src_p[3], 24u, 0xffu);
-    dst_p->frequency2 = unpack_right_shift_u32(src_p[4], 0u, 0xffu);
-    dst_p->frequency2 |= unpack_left_shift_u32(src_p[5], 8u, 0xffu);
-    dst_p->frequency2 |= unpack_left_shift_u32(src_p[6], 16u, 0xffu);
-    dst_p->frequency2 |= unpack_left_shift_u32(src_p[7], 24u, 0xffu);
-    dst_p->frequency3 = unpack_right_shift_u32(src_p[8], 0u, 0xffu);
-    dst_p->frequency3 |= unpack_left_shift_u32(src_p[9], 8u, 0xffu);
-    dst_p->frequency3 |= unpack_left_shift_u32(src_p[10], 16u, 0xffu);
-    dst_p->frequency3 |= unpack_left_shift_u32(src_p[11], 24u, 0xffu);
-    dst_p->frequency4 = unpack_right_shift_u32(src_p[12], 0u, 0xffu);
-    dst_p->frequency4 |= unpack_left_shift_u32(src_p[13], 8u, 0xffu);
-    dst_p->frequency4 |= unpack_left_shift_u32(src_p[14], 16u, 0xffu);
-    dst_p->frequency4 |= unpack_left_shift_u32(src_p[15], 24u, 0xffu);
-
-    return (0);
-}
-
-int ucr_01_rear_frequency_init(struct ucr_01_rear_frequency_t *msg_p)
-{
-    if (msg_p == NULL) return -1;
-
-    memset(msg_p, 0, sizeof(struct ucr_01_rear_frequency_t));
-
-    return 0;
-}
-
-uint32_t ucr_01_rear_frequency_frequency1_encode(double value)
-{
-    return (uint32_t)(value);
-}
-
-double ucr_01_rear_frequency_frequency1_decode(uint32_t value)
-{
-    return ((double)value);
-}
-
-bool ucr_01_rear_frequency_frequency1_is_in_range(uint32_t value)
-{
-    (void)value;
-
-    return (true);
-}
-
-uint32_t ucr_01_rear_frequency_frequency2_encode(double value)
-{
-    return (uint32_t)(value);
-}
-
-double ucr_01_rear_frequency_frequency2_decode(uint32_t value)
-{
-    return ((double)value);
-}
-
-bool ucr_01_rear_frequency_frequency2_is_in_range(uint32_t value)
-{
-    (void)value;
-
-    return (true);
-}
-
-uint32_t ucr_01_rear_frequency_frequency3_encode(double value)
-{
-    return (uint32_t)(value);
-}
-
-double ucr_01_rear_frequency_frequency3_decode(uint32_t value)
-{
-    return ((double)value);
-}
-
-bool ucr_01_rear_frequency_frequency3_is_in_range(uint32_t value)
-{
-    (void)value;
-
-    return (true);
-}
-
-uint32_t ucr_01_rear_frequency_frequency4_encode(double value)
-{
-    return (uint32_t)(value);
-}
-
-double ucr_01_rear_frequency_frequency4_decode(uint32_t value)
-{
-    return ((double)value);
-}
-
-bool ucr_01_rear_frequency_frequency4_is_in_range(uint32_t value)
-{
-    (void)value;
-
-    return (true);
-}
-
 int ucr_01_front_aero_pack(
     uint8_t *dst_p,
     const struct ucr_01_front_aero_t *src_p,
     size_t size)
 {
+    uint16_t temperature1;
+    uint16_t temperature2;
+    uint16_t temperature3;
+    uint32_t pressure1;
+    uint32_t pressure2;
+    uint32_t pressure3;
+
     if (size < 16u) {
         return (-EINVAL);
     }
 
     memset(&dst_p[0], 0, 16);
 
-    dst_p[0] |= pack_left_shift_u32(src_p->pressure1, 0u, 0xffu);
-    dst_p[1] |= pack_right_shift_u32(src_p->pressure1, 8u, 0xffu);
-    dst_p[2] |= pack_right_shift_u32(src_p->pressure1, 16u, 0xffu);
-    dst_p[3] |= pack_left_shift_u32(src_p->pressure2, 0u, 0xffu);
-    dst_p[4] |= pack_right_shift_u32(src_p->pressure2, 8u, 0xffu);
-    dst_p[5] |= pack_right_shift_u32(src_p->pressure2, 16u, 0xffu);
-    dst_p[6] |= pack_left_shift_u32(src_p->pressure3, 0u, 0xffu);
-    dst_p[7] |= pack_right_shift_u32(src_p->pressure3, 8u, 0xffu);
-    dst_p[8] |= pack_right_shift_u32(src_p->pressure3, 16u, 0xffu);
-    dst_p[9] |= pack_left_shift_u16(src_p->temperature1, 0u, 0xffu);
-    dst_p[10] |= pack_right_shift_u16(src_p->temperature1, 8u, 0xffu);
-    dst_p[11] |= pack_left_shift_u16(src_p->temperature2, 0u, 0xffu);
-    dst_p[12] |= pack_right_shift_u16(src_p->temperature2, 8u, 0xffu);
-    dst_p[13] |= pack_left_shift_u16(src_p->temperature3, 0u, 0xffu);
-    dst_p[14] |= pack_right_shift_u16(src_p->temperature3, 8u, 0xffu);
+    pressure1 = (uint32_t)src_p->pressure1;
+    dst_p[0] |= pack_left_shift_u32(pressure1, 0u, 0xffu);
+    dst_p[1] |= pack_right_shift_u32(pressure1, 8u, 0xffu);
+    dst_p[2] |= pack_right_shift_u32(pressure1, 16u, 0xffu);
+    pressure2 = (uint32_t)src_p->pressure2;
+    dst_p[3] |= pack_left_shift_u32(pressure2, 0u, 0xffu);
+    dst_p[4] |= pack_right_shift_u32(pressure2, 8u, 0xffu);
+    dst_p[5] |= pack_right_shift_u32(pressure2, 16u, 0xffu);
+    pressure3 = (uint32_t)src_p->pressure3;
+    dst_p[6] |= pack_left_shift_u32(pressure3, 0u, 0xffu);
+    dst_p[7] |= pack_right_shift_u32(pressure3, 8u, 0xffu);
+    dst_p[8] |= pack_right_shift_u32(pressure3, 16u, 0xffu);
+    temperature1 = (uint16_t)src_p->temperature1;
+    dst_p[9] |= pack_left_shift_u16(temperature1, 0u, 0xffu);
+    dst_p[10] |= pack_right_shift_u16(temperature1, 8u, 0xffu);
+    temperature2 = (uint16_t)src_p->temperature2;
+    dst_p[11] |= pack_left_shift_u16(temperature2, 0u, 0xffu);
+    dst_p[12] |= pack_right_shift_u16(temperature2, 8u, 0xffu);
+    temperature3 = (uint16_t)src_p->temperature3;
+    dst_p[13] |= pack_left_shift_u16(temperature3, 0u, 0xffu);
+    dst_p[14] |= pack_right_shift_u16(temperature3, 8u, 0xffu);
 
     return (16);
 }
@@ -823,25 +503,53 @@ int ucr_01_front_aero_unpack(
     const uint8_t *src_p,
     size_t size)
 {
+    uint16_t temperature1;
+    uint16_t temperature2;
+    uint16_t temperature3;
+    uint32_t pressure1;
+    uint32_t pressure2;
+    uint32_t pressure3;
+
     if (size < 16u) {
         return (-EINVAL);
     }
 
-    dst_p->pressure1 = unpack_right_shift_u32(src_p[0], 0u, 0xffu);
-    dst_p->pressure1 |= unpack_left_shift_u32(src_p[1], 8u, 0xffu);
-    dst_p->pressure1 |= unpack_left_shift_u32(src_p[2], 16u, 0xffu);
-    dst_p->pressure2 = unpack_right_shift_u32(src_p[3], 0u, 0xffu);
-    dst_p->pressure2 |= unpack_left_shift_u32(src_p[4], 8u, 0xffu);
-    dst_p->pressure2 |= unpack_left_shift_u32(src_p[5], 16u, 0xffu);
-    dst_p->pressure3 = unpack_right_shift_u32(src_p[6], 0u, 0xffu);
-    dst_p->pressure3 |= unpack_left_shift_u32(src_p[7], 8u, 0xffu);
-    dst_p->pressure3 |= unpack_left_shift_u32(src_p[8], 16u, 0xffu);
-    dst_p->temperature1 = unpack_right_shift_u16(src_p[9], 0u, 0xffu);
-    dst_p->temperature1 |= unpack_left_shift_u16(src_p[10], 8u, 0xffu);
-    dst_p->temperature2 = unpack_right_shift_u16(src_p[11], 0u, 0xffu);
-    dst_p->temperature2 |= unpack_left_shift_u16(src_p[12], 8u, 0xffu);
-    dst_p->temperature3 = unpack_right_shift_u16(src_p[13], 0u, 0xffu);
-    dst_p->temperature3 |= unpack_left_shift_u16(src_p[14], 8u, 0xffu);
+    pressure1 = unpack_right_shift_u32(src_p[0], 0u, 0xffu);
+    pressure1 |= unpack_left_shift_u32(src_p[1], 8u, 0xffu);
+    pressure1 |= unpack_left_shift_u32(src_p[2], 16u, 0xffu);
+
+    if ((pressure1 & (1u << 23)) != 0u) {
+        pressure1 |= 0xff000000u;
+    }
+
+    dst_p->pressure1 = (int32_t)pressure1;
+    pressure2 = unpack_right_shift_u32(src_p[3], 0u, 0xffu);
+    pressure2 |= unpack_left_shift_u32(src_p[4], 8u, 0xffu);
+    pressure2 |= unpack_left_shift_u32(src_p[5], 16u, 0xffu);
+
+    if ((pressure2 & (1u << 23)) != 0u) {
+        pressure2 |= 0xff000000u;
+    }
+
+    dst_p->pressure2 = (int32_t)pressure2;
+    pressure3 = unpack_right_shift_u32(src_p[6], 0u, 0xffu);
+    pressure3 |= unpack_left_shift_u32(src_p[7], 8u, 0xffu);
+    pressure3 |= unpack_left_shift_u32(src_p[8], 16u, 0xffu);
+
+    if ((pressure3 & (1u << 23)) != 0u) {
+        pressure3 |= 0xff000000u;
+    }
+
+    dst_p->pressure3 = (int32_t)pressure3;
+    temperature1 = unpack_right_shift_u16(src_p[9], 0u, 0xffu);
+    temperature1 |= unpack_left_shift_u16(src_p[10], 8u, 0xffu);
+    dst_p->temperature1 = (int16_t)temperature1;
+    temperature2 = unpack_right_shift_u16(src_p[11], 0u, 0xffu);
+    temperature2 |= unpack_left_shift_u16(src_p[12], 8u, 0xffu);
+    dst_p->temperature2 = (int16_t)temperature2;
+    temperature3 = unpack_right_shift_u16(src_p[13], 0u, 0xffu);
+    temperature3 |= unpack_left_shift_u16(src_p[14], 8u, 0xffu);
+    dst_p->temperature3 = (int16_t)temperature3;
 
     return (0);
 }
@@ -855,262 +563,100 @@ int ucr_01_front_aero_init(struct ucr_01_front_aero_t *msg_p)
     return 0;
 }
 
-uint32_t ucr_01_front_aero_pressure1_encode(double value)
+int32_t ucr_01_front_aero_pressure1_encode(double value)
 {
-    return (uint32_t)(value);
+    return (int32_t)(value);
 }
 
-double ucr_01_front_aero_pressure1_decode(uint32_t value)
-{
-    return ((double)value);
-}
-
-bool ucr_01_front_aero_pressure1_is_in_range(uint32_t value)
-{
-    return (value <= 16777215u);
-}
-
-uint32_t ucr_01_front_aero_pressure2_encode(double value)
-{
-    return (uint32_t)(value);
-}
-
-double ucr_01_front_aero_pressure2_decode(uint32_t value)
+double ucr_01_front_aero_pressure1_decode(int32_t value)
 {
     return ((double)value);
 }
 
-bool ucr_01_front_aero_pressure2_is_in_range(uint32_t value)
+bool ucr_01_front_aero_pressure1_is_in_range(int32_t value)
 {
-    return (value <= 16777215u);
+    return ((value >= -8388608) && (value <= 8388607));
 }
 
-uint32_t ucr_01_front_aero_pressure3_encode(double value)
+int32_t ucr_01_front_aero_pressure2_encode(double value)
 {
-    return (uint32_t)(value);
+    return (int32_t)(value);
 }
 
-double ucr_01_front_aero_pressure3_decode(uint32_t value)
-{
-    return ((double)value);
-}
-
-bool ucr_01_front_aero_pressure3_is_in_range(uint32_t value)
-{
-    return (value <= 16777215u);
-}
-
-uint16_t ucr_01_front_aero_temperature1_encode(double value)
-{
-    return (uint16_t)(value);
-}
-
-double ucr_01_front_aero_temperature1_decode(uint16_t value)
+double ucr_01_front_aero_pressure2_decode(int32_t value)
 {
     return ((double)value);
 }
 
-bool ucr_01_front_aero_temperature1_is_in_range(uint16_t value)
+bool ucr_01_front_aero_pressure2_is_in_range(int32_t value)
+{
+    return ((value >= -8388608) && (value <= 8388607));
+}
+
+int32_t ucr_01_front_aero_pressure3_encode(double value)
+{
+    return (int32_t)(value);
+}
+
+double ucr_01_front_aero_pressure3_decode(int32_t value)
+{
+    return ((double)value);
+}
+
+bool ucr_01_front_aero_pressure3_is_in_range(int32_t value)
+{
+    return ((value >= -8388608) && (value <= 8388607));
+}
+
+int16_t ucr_01_front_aero_temperature1_encode(double value)
+{
+    return (int16_t)(value);
+}
+
+double ucr_01_front_aero_temperature1_decode(int16_t value)
+{
+    return ((double)value);
+}
+
+bool ucr_01_front_aero_temperature1_is_in_range(int16_t value)
 {
     (void)value;
 
     return (true);
 }
 
-uint16_t ucr_01_front_aero_temperature2_encode(double value)
+int16_t ucr_01_front_aero_temperature2_encode(double value)
 {
-    return (uint16_t)(value);
+    return (int16_t)(value);
 }
 
-double ucr_01_front_aero_temperature2_decode(uint16_t value)
+double ucr_01_front_aero_temperature2_decode(int16_t value)
 {
     return ((double)value);
 }
 
-bool ucr_01_front_aero_temperature2_is_in_range(uint16_t value)
+bool ucr_01_front_aero_temperature2_is_in_range(int16_t value)
 {
     (void)value;
 
     return (true);
 }
 
-uint16_t ucr_01_front_aero_temperature3_encode(double value)
+int16_t ucr_01_front_aero_temperature3_encode(double value)
 {
-    return (uint16_t)(value);
+    return (int16_t)(value);
 }
 
-double ucr_01_front_aero_temperature3_decode(uint16_t value)
+double ucr_01_front_aero_temperature3_decode(int16_t value)
 {
     return ((double)value);
 }
 
-bool ucr_01_front_aero_temperature3_is_in_range(uint16_t value)
+bool ucr_01_front_aero_temperature3_is_in_range(int16_t value)
 {
     (void)value;
 
     return (true);
 }
 
-int ucr_01_rear_aero_pack(
-    uint8_t *dst_p,
-    const struct ucr_01_rear_aero_t *src_p,
-    size_t size)
-{
-    if (size < 16u) {
-        return (-EINVAL);
-    }
-
-    memset(&dst_p[0], 0, 16);
-
-    dst_p[0] |= pack_left_shift_u32(src_p->pressure1, 0u, 0xffu);
-    dst_p[1] |= pack_right_shift_u32(src_p->pressure1, 8u, 0xffu);
-    dst_p[2] |= pack_right_shift_u32(src_p->pressure1, 16u, 0xffu);
-    dst_p[3] |= pack_left_shift_u32(src_p->pressure2, 0u, 0xffu);
-    dst_p[4] |= pack_right_shift_u32(src_p->pressure2, 8u, 0xffu);
-    dst_p[5] |= pack_right_shift_u32(src_p->pressure2, 16u, 0xffu);
-    dst_p[6] |= pack_left_shift_u32(src_p->pressure3, 0u, 0xffu);
-    dst_p[7] |= pack_right_shift_u32(src_p->pressure3, 8u, 0xffu);
-    dst_p[8] |= pack_right_shift_u32(src_p->pressure3, 16u, 0xffu);
-    dst_p[9] |= pack_left_shift_u16(src_p->temperature1, 0u, 0xffu);
-    dst_p[10] |= pack_right_shift_u16(src_p->temperature1, 8u, 0xffu);
-    dst_p[11] |= pack_left_shift_u16(src_p->temperature2, 0u, 0xffu);
-    dst_p[12] |= pack_right_shift_u16(src_p->temperature2, 8u, 0xffu);
-    dst_p[13] |= pack_left_shift_u16(src_p->temperature3, 0u, 0xffu);
-    dst_p[14] |= pack_right_shift_u16(src_p->temperature3, 8u, 0xffu);
-
-    return (16);
-}
-
-int ucr_01_rear_aero_unpack(
-    struct ucr_01_rear_aero_t *dst_p,
-    const uint8_t *src_p,
-    size_t size)
-{
-    if (size < 16u) {
-        return (-EINVAL);
-    }
-
-    dst_p->pressure1 = unpack_right_shift_u32(src_p[0], 0u, 0xffu);
-    dst_p->pressure1 |= unpack_left_shift_u32(src_p[1], 8u, 0xffu);
-    dst_p->pressure1 |= unpack_left_shift_u32(src_p[2], 16u, 0xffu);
-    dst_p->pressure2 = unpack_right_shift_u32(src_p[3], 0u, 0xffu);
-    dst_p->pressure2 |= unpack_left_shift_u32(src_p[4], 8u, 0xffu);
-    dst_p->pressure2 |= unpack_left_shift_u32(src_p[5], 16u, 0xffu);
-    dst_p->pressure3 = unpack_right_shift_u32(src_p[6], 0u, 0xffu);
-    dst_p->pressure3 |= unpack_left_shift_u32(src_p[7], 8u, 0xffu);
-    dst_p->pressure3 |= unpack_left_shift_u32(src_p[8], 16u, 0xffu);
-    dst_p->temperature1 = unpack_right_shift_u16(src_p[9], 0u, 0xffu);
-    dst_p->temperature1 |= unpack_left_shift_u16(src_p[10], 8u, 0xffu);
-    dst_p->temperature2 = unpack_right_shift_u16(src_p[11], 0u, 0xffu);
-    dst_p->temperature2 |= unpack_left_shift_u16(src_p[12], 8u, 0xffu);
-    dst_p->temperature3 = unpack_right_shift_u16(src_p[13], 0u, 0xffu);
-    dst_p->temperature3 |= unpack_left_shift_u16(src_p[14], 8u, 0xffu);
-
-    return (0);
-}
-
-int ucr_01_rear_aero_init(struct ucr_01_rear_aero_t *msg_p)
-{
-    if (msg_p == NULL) return -1;
-
-    memset(msg_p, 0, sizeof(struct ucr_01_rear_aero_t));
-
-    return 0;
-}
-
-uint32_t ucr_01_rear_aero_pressure1_encode(double value)
-{
-    return (uint32_t)(value);
-}
-
-double ucr_01_rear_aero_pressure1_decode(uint32_t value)
-{
-    return ((double)value);
-}
-
-bool ucr_01_rear_aero_pressure1_is_in_range(uint32_t value)
-{
-    return (value <= 16777215u);
-}
-
-uint32_t ucr_01_rear_aero_pressure2_encode(double value)
-{
-    return (uint32_t)(value);
-}
-
-double ucr_01_rear_aero_pressure2_decode(uint32_t value)
-{
-    return ((double)value);
-}
-
-bool ucr_01_rear_aero_pressure2_is_in_range(uint32_t value)
-{
-    return (value <= 16777215u);
-}
-
-uint32_t ucr_01_rear_aero_pressure3_encode(double value)
-{
-    return (uint32_t)(value);
-}
-
-double ucr_01_rear_aero_pressure3_decode(uint32_t value)
-{
-    return ((double)value);
-}
-
-bool ucr_01_rear_aero_pressure3_is_in_range(uint32_t value)
-{
-    return (value <= 16777215u);
-}
-
-uint16_t ucr_01_rear_aero_temperature1_encode(double value)
-{
-    return (uint16_t)(value);
-}
-
-double ucr_01_rear_aero_temperature1_decode(uint16_t value)
-{
-    return ((double)value);
-}
-
-bool ucr_01_rear_aero_temperature1_is_in_range(uint16_t value)
-{
-    (void)value;
-
-    return (true);
-}
-
-uint16_t ucr_01_rear_aero_temperature2_encode(double value)
-{
-    return (uint16_t)(value);
-}
-
-double ucr_01_rear_aero_temperature2_decode(uint16_t value)
-{
-    return ((double)value);
-}
-
-bool ucr_01_rear_aero_temperature2_is_in_range(uint16_t value)
-{
-    (void)value;
-
-    return (true);
-}
-
-uint16_t ucr_01_rear_aero_temperature3_encode(double value)
-{
-    return (uint16_t)(value);
-}
-
-double ucr_01_rear_aero_temperature3_decode(uint16_t value)
-{
-    return ((double)value);
-}
-
-bool ucr_01_rear_aero_temperature3_is_in_range(uint16_t value)
-{
-    (void)value;
-
-    return (true);
-}
 

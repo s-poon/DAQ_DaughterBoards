@@ -12,7 +12,8 @@
 #include "tim.h"
 #include "../../vendor_generated/can_tools/can.h"
 
-extern frequency_t channelData[4];
+extern frequency_t ChannelData[4];
+extern aeroSensor_t AeroSensors[NUM_AERO_SENSORS];
 
 TX_THREAD txMainThread;
 TX_THREAD txAnalogThread;
@@ -109,20 +110,18 @@ void txAnalogThreadEntry(ULONG threadInput){
     uint32_t adcValues[8];
     setAnalogSwitches(analogSwitchStates);
 
-
-//    struct
     while(1){
         HAL_ADC_Start_DMA(&hadc1, adcValues, NUM_ADC_CHANNELS);
         tx_semaphore_get(&semaphoreAnalog, TX_WAIT_FOREVER);
         struct ucr_01_front_analog_t analogStruct = {
-                .analog1 = adcValues[0],
-				.analog2 = adcValues[1],
-				.analog3 = adcValues[2],
-				.analog4 = adcValues[3],
-				.analog5 = adcValues[4],
-				.analog6 = adcValues[5],
-				.analog7 = adcValues[6],
-				.analog8 = adcValues[7]
+            .analog1 = adcValues[0],
+            .analog2 = adcValues[1],
+            .analog3 = adcValues[2],
+            .analog4 = adcValues[3],
+            .analog5 = adcValues[4],
+            .analog6 = adcValues[5],
+            .analog7 = adcValues[6],
+            .analog8 = adcValues[7]
         };
         ucr_01_front_analog_pack(analogRxData, &analogStruct, UCR_01_FRONT_ANALOG_LENGTH);
         tx_thread_sleep(2);
@@ -130,18 +129,42 @@ void txAnalogThreadEntry(ULONG threadInput){
 }
 
 void txAeroThreadEntry(ULONG threadInput){
+    if(UCR_OK != AeroInit()){
+
+    }
+    struct ucr_01_front_aero_t aeroData;
+    uint8_t transmitData[UCR_01_FRONT_AERO_LENGTH];
+    FDCAN_TxHeaderTypeDef aeroHeader = {
+        .Identifier = UCR_01_FRONT_AERO_FRAME_ID,
+        .IdType = FDCAN_STANDARD_ID,
+        .TxFrameType = FDCAN_DATA_FRAME,
+        .DataLength = FDCAN_DLC_BYTES_16,
+        .ErrorStateIndicator = FDCAN_ESI_ACTIVE,
+        .BitRateSwitch = FDCAN_BRS_ON,
+        .FDFormat = FDCAN_FD_CAN,
+        .TxEventFifoControl = FDCAN_NO_TX_EVENTS,
+        .MessageMarker = 0
+    };
 
     while(1){
-    	TransmitToAll();
-//    	StartSensorReading();
-//    	SetChannel(1);
-//    	ReadData();
-//    	SetChannel(2);
-//		ReadData();
-//		SetChannel(3);
-//		ReadData();
+        for(int i = 0; i < NUM_AERO_SENSORS; i ++){
+            StartSensorReading(&AeroSensors[i]);
+        }
 
-		tx_thread_sleep(10);
+        tx_thread_sleep(20);
+
+        for(int i = 0; i < NUM_AERO_SENSORS; i ++){
+            ReadData(&AeroSensors[i]);
+        }
+        aeroData.pressure1 = AeroSensors[0].pressure;
+        aeroData.pressure2 = AeroSensors[1].pressure;
+        aeroData.pressure3 = AeroSensors[2].pressure;
+
+        aeroData.temperature1 = AeroSensors[0].temperature;
+        aeroData.temperature1 = AeroSensors[1].temperature;
+        aeroData.temperature1 = AeroSensors[2].temperature;
+        ucr_01_front_aero_pack(transmitData, &aeroData, UCR_01_FRONT_AERO_LENGTH);
+        HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &aeroHeader, transmitData);
     }
 }
 
@@ -158,18 +181,18 @@ void txCAN100HzThreadEntry(ULONG threadInput){
     }
 	uint8_t preScalar = htim2.Init.Prescaler + 1;
     float refClock = TIMCLOCK/(preScalar);
-	uint32_t frequency[4];
-	uint8_t frequencyData[16];
+	uint32_t frequency[NUM_FREQUENCY_CHANNELS];
+	uint8_t frequencyData[UCR_01_FRONT_FREQUENCY_LENGTH];
 	FDCAN_TxHeaderTypeDef frequencyHeader = {
-	        .Identifier = UCR_01_FRONT_ANALOG_FRAME_ID,
-	        .IdType = FDCAN_STANDARD_ID,
-	        .TxFrameType = FDCAN_DATA_FRAME,
-	        .DataLength = FDCAN_DLC_BYTES_16,
-	        .ErrorStateIndicator = FDCAN_ESI_ACTIVE,
-	        .BitRateSwitch = FDCAN_BRS_ON,
-	        .FDFormat = FDCAN_FD_CAN,
-	        .TxEventFifoControl = FDCAN_NO_TX_EVENTS,
-	        .MessageMarker = 0
+        .Identifier = UCR_01_FRONT_ANALOG_FRAME_ID,
+        .IdType = FDCAN_STANDARD_ID,
+        .TxFrameType = FDCAN_DATA_FRAME,
+        .DataLength = FDCAN_DLC_BYTES_16,
+        .ErrorStateIndicator = FDCAN_ESI_ACTIVE,
+        .BitRateSwitch = FDCAN_BRS_ON,
+        .FDFormat = FDCAN_FD_CAN,
+        .TxEventFifoControl = FDCAN_NO_TX_EVENTS,
+        .MessageMarker = 0
 	};
 
     while(1){
@@ -177,7 +200,7 @@ void txCAN100HzThreadEntry(ULONG threadInput){
     	tx_semaphore_get(&semaphoreFrequency, TX_WAIT_FOREVER);
     	// Convert the data to frequency and encode it
     	for(int i = 0; i < 4; i ++){
-			float value = refClock / channelData[i].difference;
+			float value = refClock / ChannelData[i].difference;
 			frequency[i] = ucr_01_front_frequency_frequency1_encode(value);
     	}
     	struct ucr_01_front_frequency_t frequencyStruct = {

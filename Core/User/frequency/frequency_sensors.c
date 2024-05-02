@@ -12,7 +12,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-frequency_t channelData[4];
+frequency_t ChannelData[4];
 
 static uint8_t CalculateFrequency(
         frequency_t* channel,
@@ -22,22 +22,22 @@ static uint8_t CalculateFrequency(
 uint8_t FrequencyInit(void){
     uint8_t retVal = UCR_OK;
     for(int i = 0; i < NUM_FREQUENCY_CHANNELS; i ++){
-        channelData[i].firstValue = 0;
-        channelData[i].secondValue = 0;
-        channelData[i].isFirstCapture = false;
+        ChannelData[i].firstValue = 0;
+        ChannelData[i].secondValue = 0;
+        ChannelData[i].isFirstCapture = false;
     }
-    channelData[0].halChannel = HAL_TIM_ACTIVE_CHANNEL_1;
-    channelData[1].halChannel = HAL_TIM_ACTIVE_CHANNEL_2;
-    channelData[2].halChannel = HAL_TIM_ACTIVE_CHANNEL_3;
-    channelData[3].halChannel = HAL_TIM_ACTIVE_CHANNEL_4;
+    ChannelData[0].halChannel = HAL_TIM_ACTIVE_CHANNEL_1;
+    ChannelData[1].halChannel = HAL_TIM_ACTIVE_CHANNEL_2;
+    ChannelData[2].halChannel = HAL_TIM_ACTIVE_CHANNEL_3;
+    ChannelData[3].halChannel = HAL_TIM_ACTIVE_CHANNEL_4;
 
-    tx_timer_create(&channelData[0].resetTimer, "resetTimer1", timerExpirationFrequency, 0,
+    tx_timer_create(&ChannelData[0].resetTimer, "resetTimer1", timerExpirationFrequency, 0,
                     FREQUENCY_RESET_TIME, 0, TX_NO_ACTIVATE);
-    tx_timer_create(&channelData[1].resetTimer, "resetTimer2", timerExpirationFrequency, 1,
+    tx_timer_create(&ChannelData[1].resetTimer, "resetTimer2", timerExpirationFrequency, 1,
                         FREQUENCY_RESET_TIME, 0, TX_NO_ACTIVATE);
-    tx_timer_create(&channelData[2].resetTimer, "resetTimer3", timerExpirationFrequency, 2,
+    tx_timer_create(&ChannelData[2].resetTimer, "resetTimer3", timerExpirationFrequency, 2,
                         FREQUENCY_RESET_TIME, 0, TX_NO_ACTIVATE);
-    tx_timer_create(&channelData[3].resetTimer, "resetTimer4", timerExpirationFrequency, 3,
+    tx_timer_create(&ChannelData[3].resetTimer, "resetTimer4", timerExpirationFrequency, 3,
                         FREQUENCY_RESET_TIME, 0, TX_NO_ACTIVATE);
     return retVal;
 }
@@ -68,7 +68,7 @@ void HAL_TIM_IC_CaptureCallback(
         default:
             return;
     }
-    CalculateFrequency(&channelData[channel], htim);
+    CalculateFrequency(&ChannelData[channel], htim);
 }
 
 static uint8_t CalculateFrequency(
@@ -128,11 +128,11 @@ void timerExpirationFrequency(
         return;
     }
     // Set the first capture and difference to zero
-    channelData[channel].isFirstCapture = false;
-    channelData[channel].difference = 0;
+    ChannelData[channel].isFirstCapture = false;
+    ChannelData[channel].difference = 0;
     // Reset the timer
-    tx_timer_deactivate(&channelData[channel].resetTimer);
-    tx_timer_change(&channelData[channel].resetTimer, FREQUENCY_RESET_TIME, 0);
+    tx_timer_deactivate(&ChannelData[channel].resetTimer);
+    tx_timer_change(&ChannelData[channel].resetTimer, FREQUENCY_RESET_TIME, 0);
     // Release the semaphore
     tx_semaphore_put(&semaphoreFrequency);
     return;
