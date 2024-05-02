@@ -25,4 +25,10 @@
 #define START_SENSOR        0x0A
 
 
+typedef struct{
+    int32_t pressure;
+    int16_t temperature;
+    uint8_t sensorNumber;
+}aeroSensor_t;
+
 #endif /* USER_AERO_AERO_DATATYPES_H_ */

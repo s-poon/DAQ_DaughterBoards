@@ -35,17 +35,17 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING, OCTETS
  15 .debug_rnglists 00001c45  00000000  00000000  0004ecd0  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 16 .debug_macro  000331f4  00000000  00000000  00050915  2**0
+ 16 .debug_macro  000332d5  00000000  00000000  00050915  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_line   0003f1d6  00000000  00000000  00083b09  2**0
+ 17 .debug_line   0003f32a  00000000  00000000  00083bea  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_str    00126829  00000000  00000000  000c2cdf  2**0
+ 18 .debug_str    00126829  00000000  00000000  000c2f14  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .comment      00000043  00000000  00000000  001e9508  2**0
+ 19 .comment      00000043  00000000  00000000  001e973d  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  00009378  00000000  00000000  001e954c  2**2
+ 20 .debug_frame  00009378  00000000  00000000  001e9780  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 21 .debug_line_str 000000fd  00000000  00000000  001f28c4  2**0
+ 21 .debug_line_str 000000fd  00000000  00000000  001f2af8  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -5467,12 +5467,12 @@ uint8_t ReadData(
  800212c:	200007fc 	.word	0x200007fc
 
 08002130 <ThreadX_Init>:
-
-
 uint8_t frequencyData[16];
 
 
-UINT ThreadX_Init(VOID *memory_ptr){
+UINT ThreadX_Init(
+        VOID *memory_ptr
+){
  8002130:	b580      	push	{r7, lr}
  8002132:	b08e      	sub	sp, #56	@ 0x38
  8002134:	af08      	add	r7, sp, #32
@@ -5697,12 +5697,13 @@ UINT ThreadX_Init(VOID *memory_ptr){
 080022d0 <txMainThreadEntry>:
 
 
-void txMainThreadEntry(ULONG threadInput){
+void txMainThreadEntry(
+    ULONG threadInput
+){
  80022d0:	b580      	push	{r7, lr}
  80022d2:	b082      	sub	sp, #8
  80022d4:	af00      	add	r7, sp, #0
  80022d6:	6078      	str	r0, [r7, #4]
-
     HAL_FDCAN_Start(&hfdcan1);
  80022d8:	480e      	ldr	r0, [pc, #56]	@ (8002314 <txMainThreadEntry+0x44>)
  80022da:	f003 faf7 	bl	80058cc <HAL_FDCAN_Start>
@@ -5742,7 +5743,9 @@ void txMainThreadEntry(ULONG threadInput){
 	}
 }
 
-void txAnalogThreadEntry(ULONG threadInput){
+void txAnalogThreadEntry(
+    ULONG threadInput
+){
  8002320:	b580      	push	{r7, lr}
  8002322:	b092      	sub	sp, #72	@ 0x48
  8002324:	af00      	add	r7, sp, #0
@@ -5826,7 +5829,9 @@ void txAnalogThreadEntry(ULONG threadInput){
     }
 }
 
-void txAeroThreadEntry(ULONG threadInput){
+void txAeroThreadEntry(
+   ULONG threadInput
+){
  800239c:	b5b0      	push	{r4, r5, r7, lr}
  800239e:	b096      	sub	sp, #88	@ 0x58
  80023a0:	af00      	add	r7, sp, #0
@@ -5953,11 +5958,12 @@ void txCAN500HzThreadEntry(ULONG threadInput){
  800246a:	e7fd      	b.n	8002468 <txCAN500HzThreadEntry+0x8>
 
 0800246c <txCAN100HzThreadEntry>:
-
     }
 }
 
-void txCAN100HzThreadEntry(ULONG threadInput){
+void txCAN100HzThreadEntry(
+    ULONG threadInput
+){
  800246c:	b5b0      	push	{r4, r5, r7, lr}
  800246e:	b09c      	sub	sp, #112	@ 0x70
  8002470:	af00      	add	r7, sp, #0

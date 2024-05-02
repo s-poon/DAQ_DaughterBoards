@@ -29,7 +29,7 @@ uint8_t AeroInit(void){
 }
 
 static uint8_t SetChannel(
-        uint8_t sensor
+    uint8_t sensor
 ){
     uint8_t retVal = UCR_OK;
     if(sensor > NUM_AERO_SENSORS){
@@ -42,7 +42,7 @@ static uint8_t SetChannel(
 }
 
 uint8_t StartSensorReading(
-        aeroSensor_t* sensor
+    aeroSensor_t* sensor
 ){
     uint8_t retVal = UCR_OK;
     if(UCR_OK != SetChannel(sensor->sensorNumber)){
@@ -55,7 +55,7 @@ uint8_t StartSensorReading(
 }
 
 uint8_t ReadData(
-        aeroSensor_t* sensor
+    aeroSensor_t* sensor
 ){
     uint8_t retVal = UCR_OK;
     if(UCR_OK != SetChannel(sensor->sensorNumber)){
@@ -67,7 +67,10 @@ uint8_t ReadData(
     uint8_t pressureData[3];
     uint8_t temperatureData[2];
     for(int i = 0; i < 3; i ++){
-        HAL_I2C_Mem_Read(&hi2c4, SENSOR_ADDRESS, pressureAddresses[i], ONE_BYTE, &pressureData[i], ONE_BYTE, I2C_TIMEOUT);     //PAGE 561 of HAL manual
+        if(HAL_OK != HAL_I2C_Mem_Read(&hi2c4, SENSOR_ADDRESS, pressureAddresses[i], ONE_BYTE, &pressureData[i], ONE_BYTE, I2C_TIMEOUT)){
+            retVal = UCR_NOT_OK;
+            return retVal;
+        }
     }
 
     pressureReading = (pressureData[0] << 16) + (pressureData[1] << 8) + pressureData[2];
@@ -84,7 +87,7 @@ uint8_t ReadData(
     }
     sensor->temperature = temperatureReading;
 
-    return 0;
+    return retVal;
 }
 
 

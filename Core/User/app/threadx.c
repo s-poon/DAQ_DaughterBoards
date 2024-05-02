@@ -43,7 +43,9 @@ static const uint8_t analogSwitchStates[NUM_ADC_CHANNELS] = {
 uint8_t frequencyData[16];
 
 
-UINT ThreadX_Init(VOID *memory_ptr){
+UINT ThreadX_Init(
+        VOID *memory_ptr
+){
     UINT ret = TX_SUCCESS;
 
 	TX_BYTE_POOL *bytePool = (TX_BYTE_POOL*)memory_ptr;
@@ -91,8 +93,9 @@ UINT ThreadX_Init(VOID *memory_ptr){
 }
 
 
-void txMainThreadEntry(ULONG threadInput){
-
+void txMainThreadEntry(
+    ULONG threadInput
+){
     HAL_FDCAN_Start(&hfdcan1);
     HAL_TIM_IC_Start_IT(&htim2, TIM_CHANNEL_1);
     HAL_TIM_IC_Start_IT(&htim2, TIM_CHANNEL_2);
@@ -105,7 +108,9 @@ void txMainThreadEntry(ULONG threadInput){
 	}
 }
 
-void txAnalogThreadEntry(ULONG threadInput){
+void txAnalogThreadEntry(
+    ULONG threadInput
+){
     uint8_t analogRxData[16];
     uint32_t adcValues[8];
     setAnalogSwitches(analogSwitchStates);
@@ -128,7 +133,9 @@ void txAnalogThreadEntry(ULONG threadInput){
     }
 }
 
-void txAeroThreadEntry(ULONG threadInput){
+void txAeroThreadEntry(
+   ULONG threadInput
+){
     if(UCR_OK != AeroInit()){
 
     }
@@ -175,7 +182,9 @@ void txCAN500HzThreadEntry(ULONG threadInput){
     }
 }
 
-void txCAN100HzThreadEntry(ULONG threadInput){
+void txCAN100HzThreadEntry(
+    ULONG threadInput
+){
     if(UCR_OK != FrequencyInit()){
 
     }
