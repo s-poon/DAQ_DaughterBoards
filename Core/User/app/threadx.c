@@ -12,7 +12,7 @@
 #include "tim.h"
 #include "../../vendor_generated/can_tools/can.h"
 
-
+extern frequency_t channelData[4];
 
 TX_THREAD txMainThread;
 TX_THREAD txAnalogThread;
@@ -177,7 +177,7 @@ void txCAN100HzThreadEntry(ULONG threadInput){
     	tx_semaphore_get(&semaphoreFrequency, TX_WAIT_FOREVER);
     	// Convert the data to frequency and encode it
     	for(int i = 0; i < 4; i ++){
-			float value = refClock / difference[i];
+			float value = refClock / channelData[i].difference;
 			frequency[i] = ucr_01_front_frequency_frequency1_encode(value);
     	}
     	struct ucr_01_front_frequency_t frequencyStruct = {

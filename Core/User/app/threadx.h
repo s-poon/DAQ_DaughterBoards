@@ -26,5 +26,5 @@ extern TX_SEMAPHORE semaphoreAnalog;
 extern TX_SEMAPHORE semaphoreAero;
 extern TX_SEMAPHORE semaphoreFrequency;
 
-extern TX_TIMER timers[NUM_FREQUENCY_CHANNELS];
+
 #endif /* USER_APP_THREADX_H_ */

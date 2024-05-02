@@ -20,6 +20,8 @@ typedef struct{
         uint32_t secondValue;
         bool isFirstCapture;
         TX_TIMER resetTimer;
+        uint8_t halChannel;
+        uint32_t difference;
 }frequency_t;
 
 #endif /* USER_FREQUENCY_FREQUENCY_DATATYPES_H_ */
