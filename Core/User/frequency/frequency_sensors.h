@@ -12,7 +12,7 @@
 #include "frequency_datatypes.h"
 
 
-void timerExpiration(frequency_t* thing);
+void timerExpirationFrequency(ULONG thing);
 uint8_t FrequencyInit(void);
 
 

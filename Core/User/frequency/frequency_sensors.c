@@ -10,6 +10,7 @@
 #include "threadx.h"
 #include "tim.h"
 #include <stdbool.h>
+#include <stdio.h>
 
 frequency_t channelData[4];
 
@@ -30,13 +31,13 @@ uint8_t FrequencyInit(void){
     channelData[2].halChannel = HAL_TIM_ACTIVE_CHANNEL_3;
     channelData[3].halChannel = HAL_TIM_ACTIVE_CHANNEL_4;
 
-    tx_timer_create(&channelData[0].resetTimer, "resetTimer1", timerExpiration, (ULONG)&channelData[0],
+    tx_timer_create(&channelData[0].resetTimer, "resetTimer1", timerExpirationFrequency, 0,
                     FREQUENCY_RESET_TIME, 0, TX_NO_ACTIVATE);
-    tx_timer_create(&channelData[1].resetTimer, "resetTimer2", timerExpiration, &channelData[1],
+    tx_timer_create(&channelData[1].resetTimer, "resetTimer2", timerExpirationFrequency, 1,
                         FREQUENCY_RESET_TIME, 0, TX_NO_ACTIVATE);
-    tx_timer_create(&channelData[2].resetTimer, "resetTimer3", timerExpiration, &channelData[2],
+    tx_timer_create(&channelData[2].resetTimer, "resetTimer3", timerExpirationFrequency, 2,
                         FREQUENCY_RESET_TIME, 0, TX_NO_ACTIVATE);
-    tx_timer_create(&channelData[3].resetTimer, "resetTimer4", timerExpiration, &channelData[3],
+    tx_timer_create(&channelData[3].resetTimer, "resetTimer4", timerExpirationFrequency, 3,
                         FREQUENCY_RESET_TIME, 0, TX_NO_ACTIVATE);
     return retVal;
 }
@@ -119,19 +120,19 @@ static uint8_t CalculateFrequency(
   * @param channel: the number of the timer
   * @retval void
   */
-void timerExpiration(
-        frequency_t* channel
+void timerExpirationFrequency(
+        ULONG channel
 ){
     // Attempt to acquire the semaphore
     if(TX_SUCCESS != tx_semaphore_get(&semaphoreFrequency, TX_NO_WAIT)){
         return;
     }
     // Set the first capture and difference to zero
-    channel->isFirstCapture = false;
-    channel->difference = 0;
+    channelData[channel].isFirstCapture = false;
+    channelData[channel].difference = 0;
     // Reset the timer
-    tx_timer_deactivate(&channel->resetTimer);
-    tx_timer_change(&channel->resetTimer, FREQUENCY_RESET_TIME, 0);
+    tx_timer_deactivate(&channelData[channel].resetTimer);
+    tx_timer_change(&channelData[channel].resetTimer, FREQUENCY_RESET_TIME, 0);
     // Release the semaphore
     tx_semaphore_put(&semaphoreFrequency);
     return;
