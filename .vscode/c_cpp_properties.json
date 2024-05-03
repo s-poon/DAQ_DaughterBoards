@@ -10,7 +10,9 @@
                 "${workspaceFolder}/Drivers/STM32G4xx_HAL_Driver/Inc",
                 "${workspaceFolder}/Drivers/CMSIS/Device/ST/STM32G4xx/Include",
                 "${workspaceFolder}/Core/Inc",
-                "${workspaceFolder}/Middlewares/ST/threadx/common/inc"
+                "${workspaceFolder}/Middlewares/ST/threadx/common/inc",
+                "${workspaceFolder}/Middlewares/ST/threadx/ports/cortex_m4/gnu/inc",
+                "${workspaceFolder}/Core/User"
             ]
         }
     ]

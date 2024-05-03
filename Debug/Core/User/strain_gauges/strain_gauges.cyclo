@@ -1,0 +1,2 @@
+../Core/User/strain_gauges/strain_gauges.c:16:9:InitDevice	1
+../Core/User/strain_gauges/strain_gauges.c:74:9:readRegister	1
