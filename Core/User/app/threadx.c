@@ -168,8 +168,8 @@ void txAeroThreadEntry(
         aeroData.pressure3 = AeroSensors[2].pressure;
 
         aeroData.temperature1 = AeroSensors[0].temperature;
-        aeroData.temperature1 = AeroSensors[1].temperature;
-        aeroData.temperature1 = AeroSensors[2].temperature;
+        aeroData.temperature2 = AeroSensors[1].temperature;
+        aeroData.temperature3 = AeroSensors[2].temperature;
         ucr_01_front_aero_pack(transmitData, &aeroData, UCR_01_FRONT_AERO_LENGTH);
         HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &aeroHeader, transmitData);
     }
