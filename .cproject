@@ -49,6 +49,7 @@
 									<listOptionValue builtIn="false" value="../Core/User"/>
 									<listOptionValue builtIn="false" value="../Core/User/ucr_common"/>
 									<listOptionValue builtIn="false" value="../Core/User/can"/>
+									<listOptionValue builtIn="false" value="../Core/User/strain_gauges"/>
 									<listOptionValue builtIn="false" value="../Core/User/app"/>
 									<listOptionValue builtIn="false" value="../Core/User/aero"/>
 									<listOptionValue builtIn="false" value="../Core/User/adc"/>

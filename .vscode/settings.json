@@ -2,6 +2,7 @@
     "files.associations": {
         "adc.h": "c",
         "main.h": "c",
-        "stm32g474xx.h": "c"
+        "stm32g474xx.h": "c",
+        "strain_gauges.h": "c"
     }
 }

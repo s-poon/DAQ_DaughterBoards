@@ -13,6 +13,7 @@ RM := rm -rf
 -include Middlewares/ST/threadx/common/src/subdir.mk
 -include Drivers/STM32G4xx_HAL_Driver/Src/subdir.mk
 -include Core/vendor_generated/can_tools/subdir.mk
+-include Core/User/strain_gauges/subdir.mk
 -include Core/User/frequency/subdir.mk
 -include Core/User/app/subdir.mk
 -include Core/User/aero/subdir.mk

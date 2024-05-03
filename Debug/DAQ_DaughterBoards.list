@@ -5811,7 +5811,6 @@ uint8_t FrequencyInit(void){
  8002386:	2208      	movs	r2, #8
  8002388:	f883 20f8 	strb.w	r2, [r3, #248]	@ 0xf8
 
-
     tx_timer_create(&channelData[0].resetTimer, "resetTimer1", timerExpirationFrequency, 0,
  800238c:	232c      	movs	r3, #44	@ 0x2c
  800238e:	9303      	str	r3, [sp, #12]
