@@ -66,23 +66,23 @@ uint8_t ReadData(
     int16_t temperatureReading;
     uint8_t pressureData[3];
     uint8_t temperatureData[2];
-    for(int i = 0; i < 3; i ++){
+    for(int i = 0; i < NUM_AERO_SENSORS; i ++){
         if(HAL_OK != HAL_I2C_Mem_Read(&hi2c4, SENSOR_ADDRESS, pressureAddresses[i], ONE_BYTE, &pressureData[i], ONE_BYTE, I2C_TIMEOUT)){
             retVal = UCR_NOT_OK;
             return retVal;
         }
     }
 
-    pressureReading = (pressureData[0] << 16) + (pressureData[1] << 8) + pressureData[2];
-    if(pressureReading >> 23){
+    pressureReading = (pressureData[0] << TWO_BYTE_OFFSET) + (pressureData[1] << ONE_BYTE_OFFSET) + pressureData[2];
+    if(pressureReading >> PRESSURE_MSB_OFFSET){
         pressureReading = pressureReading - 16777216;
     }
     sensor->pressure = pressureReading;
 
     HAL_I2C_Mem_Read(&hi2c4, SENSOR_ADDRESS, TEMP_MSB_ADDRESS, ONE_BYTE, &temperatureData[0], ONE_BYTE, I2C_TIMEOUT);
     HAL_I2C_Mem_Read(&hi2c4, SENSOR_ADDRESS, TEMP_LSB_ADDRESS, ONE_BYTE, &temperatureData[1], ONE_BYTE, I2C_TIMEOUT);
-    temperatureReading = (pressureData[0] << 8) + pressureData[1];
-    if(temperatureReading >> 15){
+    temperatureReading = (pressureData[0] << ONE_BYTE_OFFSET) + pressureData[1];
+    if(temperatureReading >> TEMPERATURE_MSB_OFFSET){
         temperatureReading = temperatureReading - 65536;
     }
     sensor->temperature = temperatureReading;
