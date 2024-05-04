@@ -9,11 +9,13 @@
 #include "strain_gauges.h"
 #include "strain_gauges_datatypes.h"
 #include "ucr_common.h"
+#include "spi.h"
 #include <stdint.h>
 
 ads124S08Control_t externalADC1, externalADC2;
 
 uint8_t InitDevice(){
+    uint8_t retVal = UCR_OK;
 	externalADC1.registers[ID_ADDR_MASK] = 0x08;
 	externalADC1.registers[STATUS_ADDR_MASK] = 0x80;
 	externalADC1.registers[INPMUX_ADDR_MASK]= 0x01;
@@ -69,17 +71,109 @@ uint8_t InitDevice(){
     externalADC2.resetPin = RESET2_Pin;
     externalADC2.drdyPinPort = DRDY2_GPIO_Port;
     externalADC2.drdyPin = DRDY2_Pin;
+    return retVal;
 }
 
-uint8_t readRegister(
-    ads124S08Control_t device,
+uint8_t ReadRegister(
+    ads124S08Control_t* device,
+    uint16_t registerNum
+){
+	uint8_t txData[2];
+	uint8_t rxData;
+
+	txData[0] = READ_REG_OPCODE_MASK + (registerNum & 0x1f);
+	txData[1] = 0x00;
+
+	HAL_GPIO_WritePin(device->csPinPort, device->csPin, 0);
+	HAL_SPI_Transmit(&hspi4, txData, 2, 500);
+	HAL_SPI_Receive(&hspi4, &rxData, 1, 500);
+	HAL_GPIO_WritePin(device->csPinPort, device->csPin, 1);
+	device->registers[registerNum] = rxData;
+    return rxData;
+}
+
+uint8_t ReadRegisters(
+    ads124S08Control_t* device,
     uint16_t registerNum,
-    uint16_t readCount,
-    uint8_t* data
+    uint16_t readCount
 ){
     uint8_t retVal = UCR_OK;
+    uint8_t txData[2];
+    uint8_t rxData[readCount];
 
+    txData[0] = READ_REG_OPCODE_MASK + (registerNum & 0x1f);
+    txData[1] = readCount - 1;
+
+    HAL_GPIO_WritePin(device->csPinPort, device->csPin, 0);
+    HAL_SPI_Transmit(&hspi4, txData, 2, 500);
+    HAL_SPI_Receive(&hspi4, rxData, readCount, 500);
+    HAL_GPIO_WritePin(device->csPinPort, device->csPin, 1);
+    for(int i = registerNum; i < registerNum + readCount; i ++){
+        device->registers[i] = rxData[i - registerNum];
+    }
     return retVal;
 }
 
 
+uint8_t WriteRegister(
+	ads124S08Control_t* device,
+	uint16_t registerNum,
+	uint8_t data
+){
+	uint8_t retVal = UCR_OK;
+    uint8_t txData[3];
+
+    txData[0] = WRITE_REG_OPCODE_MASK + (registerNum & 0x1f);
+    txData[1] = 0x00;
+    txData[2] = data;
+
+    HAL_GPIO_WritePin(device->csPinPort, device->csPin, 0);
+    HAL_SPI_Transmit(&hspi4, txData, 3, 500);
+    HAL_GPIO_WritePin(device->csPinPort, device->csPin, 1);
+	return retVal;
+}
+
+uint8_t WriteRegisters(
+    ads124S08Control_t* device,
+    uint16_t registerNum,
+    uint16_t writeCount,
+    uint8_t* data
+){
+    uint8_t retVal = UCR_OK;
+    uint8_t txData[writeCount + 2];
+
+    txData[0] = WRITE_REG_OPCODE_MASK + (registerNum & 0x1f);
+    txData[1] = 0x00;
+    for(int i = 2; i < writeCount; i ++){
+        txData[i] = *data;
+        ++data;
+    }
+
+    HAL_GPIO_WritePin(device->csPinPort, device->csPin, 0);
+    HAL_SPI_Transmit(&hspi4, txData, 3, 500);
+    HAL_GPIO_WritePin(device->csPinPort, device->csPin, 1);
+    return retVal;
+}
+
+uint8_t SendCommand(
+	ads124S08Control_t* device,
+	uint8_t command
+){
+	uint8_t retVal = UCR_OK;
+	HAL_GPIO_WritePin(device->csPinPort, device->csPin, 0);
+    HAL_SPI_Transmit(&hspi4, &command, 3, 500);
+    HAL_GPIO_WritePin(device->csPinPort, device->csPin, 1);
+	return retVal;
+}
+
+uint32_t readData(
+	ads124S08Control_t* device,
+	uint32_t* deviceStatus,
+	uint32_t* deviceData,
+	uint32_t* deviceCRC
+){
+    HAL_GPIO_WritePin(device->csPinPort, device->csPin, 0);
+//    HAL_SPI_Transmit(&hspi4, &command, 3, 500);
+
+	return 0;
+}

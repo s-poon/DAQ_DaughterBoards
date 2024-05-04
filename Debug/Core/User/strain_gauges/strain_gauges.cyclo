@@ -1,2 +1,7 @@
-../Core/User/strain_gauges/strain_gauges.c:16:9:InitDevice	1
-../Core/User/strain_gauges/strain_gauges.c:74:9:readRegister	1
+../Core/User/strain_gauges/strain_gauges.c:17:9:InitDevice	1
+../Core/User/strain_gauges/strain_gauges.c:77:9:ReadRegister	1
+../Core/User/strain_gauges/strain_gauges.c:95:9:ReadRegisters	2
+../Core/User/strain_gauges/strain_gauges.c:118:9:WriteRegister	1
+../Core/User/strain_gauges/strain_gauges.c:136:9:WriteRegisters	2
+../Core/User/strain_gauges/strain_gauges.c:158:9:SendCommand	1
+../Core/User/strain_gauges/strain_gauges.c:169:10:readData	1

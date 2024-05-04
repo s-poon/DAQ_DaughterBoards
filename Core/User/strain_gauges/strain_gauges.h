@@ -27,4 +27,21 @@
 #define GPIODAT_ADDR_MASK	(0x10u)
 #define GPIOCON_ADDR_MASK	(0x11u)
 
+#define READ_REG_OPCODE_MASK    (0x20u)
+#define WRITE_REG_OPCODE_MASK   (0x40u)
+#define READ_DATA_COMMAND       (0x12u)
+
+#define AIN0                    (0b0000u)
+#define AIN1                    (0b0001u)
+#define AIN2                    (0b0010u)
+#define AIN3                    (0b0011u)
+#define AIN4                    (0b0100u)
+#define AIN5                    (0b0101u)
+#define AIN6                    (0b0110u)
+#define AIN7                    (0b0111u)
+#define AIN8                    (0b1000u)
+#define AIN9                    (0b1001u)
+#define AIN10                   (0b1010u)
+#define AIN11                   (0b1011u)
+
 #endif /* USER_STRAIN_GAUGES_STRAIN_GAUGES_H_ */

@@ -3707,9 +3707,9 @@ void MX_SPI4_Init(void)
  8001854:	4b14      	ldr	r3, [pc, #80]	@ (80018a8 <MX_SPI4_Init+0x74>)
  8001856:	2200      	movs	r2, #0
  8001858:	611a      	str	r2, [r3, #16]
-  hspi4.Init.CLKPhase = SPI_PHASE_1EDGE;
+  hspi4.Init.CLKPhase = SPI_PHASE_2EDGE;
  800185a:	4b13      	ldr	r3, [pc, #76]	@ (80018a8 <MX_SPI4_Init+0x74>)
- 800185c:	2200      	movs	r2, #0
+ 800185c:	2201      	movs	r2, #1
  800185e:	615a      	str	r2, [r3, #20]
   hspi4.Init.NSS = SPI_NSS_SOFT;
  8001860:	4b11      	ldr	r3, [pc, #68]	@ (80018a8 <MX_SPI4_Init+0x74>)
@@ -3739,9 +3739,9 @@ void MX_SPI4_Init(void)
  8001886:	4b08      	ldr	r3, [pc, #32]	@ (80018a8 <MX_SPI4_Init+0x74>)
  8001888:	2200      	movs	r2, #0
  800188a:	631a      	str	r2, [r3, #48]	@ 0x30
-  hspi4.Init.NSSPMode = SPI_NSS_PULSE_ENABLE;
+  hspi4.Init.NSSPMode = SPI_NSS_PULSE_DISABLE;
  800188c:	4b06      	ldr	r3, [pc, #24]	@ (80018a8 <MX_SPI4_Init+0x74>)
- 800188e:	2208      	movs	r2, #8
+ 800188e:	2200      	movs	r2, #0
  8001890:	635a      	str	r2, [r3, #52]	@ 0x34
   if (HAL_SPI_Init(&hspi4) != HAL_OK)
  8001892:	4805      	ldr	r0, [pc, #20]	@ (80018a8 <MX_SPI4_Init+0x74>)
