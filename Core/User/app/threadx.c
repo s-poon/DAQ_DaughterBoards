@@ -11,6 +11,7 @@
 #include "frequency_sensors.h"
 #include "tim.h"
 #include "../../vendor_generated/can_tools/can.h"
+#include "strain_gauges_datatypes.h"
 
 extern frequency_t ChannelData[4];
 extern aeroSensor_t AeroSensors[NUM_AERO_SENSORS];
@@ -222,6 +223,17 @@ void txCAN100HzThreadEntry(
     	tx_semaphore_put(&semaphoreFrequency);
     	HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &frequencyHeader, frequencyData);
     	tx_thread_sleep(10);
+    }
+}
+
+void StrainGaugeEntry(
+    ULONG threadInput
+){
+
+    while(1){
+        // Set to channel 1
+
+        for(int i = 0; i < )
     }
 }
 
