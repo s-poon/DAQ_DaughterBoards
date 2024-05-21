@@ -11,7 +11,8 @@
 #include <stdint.h>
 #include "main.h"
 
-#define NUM_REGISTERS       (18u)
+#define NUM_STRAIN_GAUGES_CHANNELS  (6u)
+#define NUM_REGISTERS               (18u)
 
 typedef struct{
     uint8_t registers[NUM_REGISTERS];
