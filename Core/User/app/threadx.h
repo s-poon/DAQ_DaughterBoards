@@ -25,6 +25,8 @@ void txCAN10HzThreadEntry(ULONG threadInput);
 extern TX_SEMAPHORE semaphoreAnalog;
 extern TX_SEMAPHORE semaphoreAero;
 extern TX_SEMAPHORE semaphoreFrequency;
+extern TX_SEMAPHORE semaphoreExADC1;
+extern TX_SEMAPHORE semaphoreExADC2;
 
 
 #endif /* USER_APP_THREADX_H_ */

@@ -66,6 +66,7 @@ void Error_Handler(void);
 #define CS1_GPIO_Port GPIOC
 #define DRDY1_Pin GPIO_PIN_0
 #define DRDY1_GPIO_Port GPIOB
+#define DRDY1_EXTI_IRQn EXTI0_IRQn
 #define RESET1_Pin GPIO_PIN_1
 #define RESET1_GPIO_Port GPIOB
 #define STARTSYNC_2_Pin GPIO_PIN_7
@@ -74,6 +75,7 @@ void Error_Handler(void);
 #define CS2_GPIO_Port GPIOE
 #define DRDY2_Pin GPIO_PIN_9
 #define DRDY2_GPIO_Port GPIOE
+#define DRDY2_EXTI_IRQn EXTI9_5_IRQn
 #define RESET2_Pin GPIO_PIN_10
 #define RESET2_GPIO_Port GPIOE
 #define ANALOGSWITCH_6_Pin GPIO_PIN_13

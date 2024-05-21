@@ -22,6 +22,7 @@
 "./Core/User/aero/aero_sensors.o"
 "./Core/User/app/threadx.o"
 "./Core/User/frequency/frequency_sensors.o"
+"./Core/User/gpio/exti.o"
 "./Core/User/strain_gauges/strain_gauges.o"
 "./Core/vendor_generated/can_tools/can.o"
 "./Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal.o"

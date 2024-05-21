@@ -7,12 +7,20 @@
 
 
 #include "strain_gauges.h"
-#include "strain_gauges_datatypes.h"
+#include "threadx.h"
 #include "ucr_common.h"
 #include "spi.h"
-#include <stdint.h>
+
 
 ads124S08Control_t externalADC1, externalADC2;
+const uint8_t adcMuxStates[] = {
+	ADS_P_AIN0 + ADS_N_AIN1,
+	ADS_P_AIN2 + ADS_N_AIN3,
+	ADS_P_AIN4 + ADS_N_AIN5,
+	ADS_P_AIN6 + ADS_N_AIN7,
+	ADS_P_AIN8 + ADS_N_AIN9,
+	ADS_P_AIN10 + ADS_N_AIN11
+};
 
 uint8_t InitDevice(){
     uint8_t retVal = UCR_OK;
@@ -81,7 +89,7 @@ uint8_t ReadRegister(
 	uint8_t txData[2];
 	uint8_t rxData;
 
-	txData[0] = READ_REG_OPCODE_MASK + (registerNum & 0x1f);
+	txData[0] = REGRD_OPCODE_MASK + (registerNum & 0x1f);
 	txData[1] = 0x00;
 
 	HAL_GPIO_WritePin(device->csPinPort, device->csPin, 0);
@@ -101,7 +109,7 @@ uint8_t ReadRegisters(
     uint8_t txData[2];
     uint8_t rxData[readCount];
 
-    txData[0] = READ_REG_OPCODE_MASK + (registerNum & 0x1f);
+    txData[0] = REGRD_OPCODE_MASK + (registerNum & 0x1f);
     txData[1] = readCount - 1;
 
     HAL_GPIO_WritePin(device->csPinPort, device->csPin, 0);
@@ -123,7 +131,7 @@ uint8_t WriteRegister(
 	uint8_t retVal = UCR_OK;
     uint8_t txData[3];
 
-    txData[0] = WRITE_REG_OPCODE_MASK + (registerNum & 0x1f);
+    txData[0] = REGWR_OPCODE_MASK + (registerNum & 0x1f);
     txData[1] = 0x00;
     txData[2] = data;
 
@@ -142,7 +150,7 @@ uint8_t WriteRegisters(
     uint8_t retVal = UCR_OK;
     uint8_t txData[writeCount + 2];
 
-    txData[0] = WRITE_REG_OPCODE_MASK + (registerNum & 0x1f);
+    txData[0] = REGWR_OPCODE_MASK + (registerNum & 0x1f);
     txData[1] = 0x00;
     for(int i = 2; i < writeCount; i ++){
         txData[i] = *data;
@@ -166,6 +174,13 @@ uint8_t SendCommand(
 	return retVal;
 }
 
+void readWriteData(
+	ads124S08Control_t* device,
+	uint8_t* 
+){
+
+}
+
 uint32_t readData(
 	ads124S08Control_t* device,
 	uint32_t* deviceStatus,
@@ -177,3 +192,18 @@ uint32_t readData(
 
 	return 0;
 }
+
+void HAL_SPI_TxRxCpltCallback(
+    SPI_HandleTypeDef* hspi
+){
+    if(1 == HAL_GPIO_ReadPin(externalADC1.csPinPort, externalADC1.csPin)){
+        tx_semaphore_put(&semaphoreExADC1);
+        HAL_GPIO_WritePin(externalADC1.csPinPort, externalADC1.csPin, 1);
+    }else{
+        tx_semaphore_put(&semaphoreExADC2);
+        HAL_GPIO_WritePin(externalADC2.csPinPort, externalADC2.csPin, 1);
+    }
+}
+
+
+
