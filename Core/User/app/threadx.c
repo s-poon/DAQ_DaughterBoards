@@ -58,38 +58,59 @@ UINT ThreadX_Init(
 	CHAR *pointer;
 
 	if(tx_byte_allocate(bytePool, (VOID**) &pointer, TX_APP_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS){
-	  return TX_POOL_ERROR;
+	    return TX_POOL_ERROR;
 	}
-
 
 	if(tx_thread_create(&txMainThread, "txMainThread", txMainThreadEntry, 0, pointer,
 						 TX_APP_STACK_SIZE, TX_APP_THREAD_PRIO, TX_APP_THREAD_PREEMPTION_THRESHOLD,
-						 TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS){
-	  return TX_THREAD_ERROR;
+						 TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS
+    ){
+	    return TX_THREAD_ERROR;
 	}
 
-	if(tx_thread_create(&txMainThread, "txAnalogThread", txAnalogThreadEntry, 0, pointer,
-						 TX_APP_STACK_SIZE, TX_APP_THREAD_PRIO, TX_APP_THREAD_PREEMPTION_THRESHOLD,
-						 TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS){
-	  return TX_THREAD_ERROR;
+	if(tx_byte_allocate(bytePool, (VOID**) &pointer, TX_APP_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS){
+	    return TX_POOL_ERROR;
+    }
+
+	if(tx_thread_create(&txAnalogThread, "txAnalogThread", txAnalogThreadEntry, 0, pointer,
+						 TX_APP_STACK_SIZE, TX_ANALOG_PRIO, TX_APP_THREAD_PREEMPTION_THRESHOLD,
+						 TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS
+    ){
+	    return TX_THREAD_ERROR;
 	}
 
-	if(tx_thread_create(&txMainThread, "txAeroThread", txAeroThreadEntry, 0, pointer,
-					   TX_APP_STACK_SIZE, TX_APP_THREAD_PRIO, TX_APP_THREAD_PREEMPTION_THRESHOLD,
-					   TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS){
-		return TX_THREAD_ERROR;
-	}
-	if(tx_thread_create(&txMainThread, "txCAN500Hz", txCAN500HzThreadEntry, 0, pointer,
-					   TX_APP_STACK_SIZE, TX_APP_THREAD_PRIO, TX_APP_THREAD_PREEMPTION_THRESHOLD,
-					   TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS){
-		return TX_THREAD_ERROR;
-	}
-
-	if(tx_thread_create(&txMainThread, "txCAN100Hz", txCAN100HzThreadEntry, 0, pointer,
-					   TX_APP_STACK_SIZE, TX_APP_THREAD_PRIO, TX_APP_THREAD_PREEMPTION_THRESHOLD,
-					   TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS){
-		return TX_THREAD_ERROR;
-	}
+//    if(tx_byte_allocate(bytePool, (VOID**) &pointer, TX_APP_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS){
+//        return TX_POOL_ERROR;
+//    }
+//
+//	if(tx_thread_create(&txMainThread, "txAeroThread", txAeroThreadEntry, 0, pointer,
+//					   TX_APP_STACK_SIZE, 12, TX_APP_THREAD_PREEMPTION_THRESHOLD,
+//					   TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS
+//    ){
+//		return TX_THREAD_ERROR;
+//	}
+//
+//    if(tx_byte_allocate(bytePool, (VOID**) &pointer, TX_APP_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS){
+//        return TX_POOL_ERROR;
+//    }
+//
+//	if(tx_thread_create(&txMainThread, "txCAN500Hz", txCAN500HzThreadEntry, 0, pointer,
+//					   TX_APP_STACK_SIZE, 13, TX_APP_THREAD_PREEMPTION_THRESHOLD,
+//					   TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS
+//    ){
+//		return TX_THREAD_ERROR;
+//	}
+//
+//    if(tx_byte_allocate(bytePool, (VOID**) &pointer, TX_APP_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS){
+//        return TX_POOL_ERROR;
+//    }
+//
+//	if(tx_thread_create(&txMainThread, "txCAN100Hz", txCAN100HzThreadEntry, 0, pointer,
+//					   TX_APP_STACK_SIZE, 14, TX_APP_THREAD_PREEMPTION_THRESHOLD,
+//					   TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS
+//    ){
+//		return TX_THREAD_ERROR;
+//	}
 
 	tx_semaphore_create(&semaphoreAnalog, "semaphoreAnalog", 0);
 	tx_semaphore_create(&semaphoreAero, "semaphoreAero", 0);
@@ -126,7 +147,7 @@ void txAnalogThreadEntry(
     setAnalogSwitches(analogSwitchStates);
 
     while(1){
-        HAL_ADC_Start_DMA(&hadc1, adcValues, NUM_ADC_CHANNELS);
+        HAL_ADC_Start_DMA(&hadc4, adcValues, NUM_ADC_CHANNELS);
         tx_semaphore_get(&semaphoreAnalog, TX_WAIT_FOREVER);
         struct ucr_01_front_analog_t analogStruct = {
             .analog1 = adcValues[0],
