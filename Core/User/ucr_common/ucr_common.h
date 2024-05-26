@@ -15,7 +15,7 @@
 #define TIMCLOCK			(170000000)
 
 typedef struct{
-	GPIO_TypeDef	*port;
+	GPIO_TypeDef*	port;
 	uint16_t		pin;
 }gpio_control_t;
 

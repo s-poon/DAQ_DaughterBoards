@@ -9,7 +9,7 @@
 #define USER_AERO_AERO_DATATYPES_H_
 
 #define SENSOR_ADDRESS      0x6D
-#define SWITCH_ADDRESS      0b1110000
+#define SWITCH_ADDRESS      0b11100000
 
 #define DATA_MSB_ADDRESS    0x06 << 1
 #define DATA_CSB_ADDRESS    0x07 << 1
