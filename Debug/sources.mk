@@ -29,6 +29,8 @@ Core/User/adc \
 Core/User/aero \
 Core/User/app \
 Core/User/frequency \
+Core/User/gpio \
+Core/User/strain_gauges \
 Core/vendor_generated/can_tools \
 Drivers/STM32G4xx_HAL_Driver/Src \
 Middlewares/ST/threadx/common/src \

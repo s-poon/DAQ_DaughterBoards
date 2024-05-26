@@ -12,7 +12,7 @@
 
 aeroSensor_t AeroSensors[NUM_AERO_SENSORS];
 
-static uint8_t SetChannel(uint8_t sensor);
+//static uint8_t SetChannel(uint8_t sensor);
 
 uint16_t pressureAddresses[3] = {
         DATA_MSB_ADDRESS,
@@ -28,7 +28,7 @@ uint8_t AeroInit(void){
     return retVal;
 }
 
-static uint8_t SetChannel(
+uint8_t SetChannel(
     uint8_t sensor
 ){
     uint8_t retVal = UCR_OK;

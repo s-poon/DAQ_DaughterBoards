@@ -49,6 +49,8 @@
 									<listOptionValue builtIn="false" value="../Core/User"/>
 									<listOptionValue builtIn="false" value="../Core/User/ucr_common"/>
 									<listOptionValue builtIn="false" value="../Core/User/can"/>
+									<listOptionValue builtIn="false" value="../Core/User/strain_gauges"/>
+									<listOptionValue builtIn="false" value="../Core/User/gpio"/>
 									<listOptionValue builtIn="false" value="../Core/User/app"/>
 									<listOptionValue builtIn="false" value="../Core/User/aero"/>
 									<listOptionValue builtIn="false" value="../Core/User/adc"/>
@@ -196,5 +198,12 @@
 		</scannerConfigBuildInfo>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
-	<storageModule moduleId="refreshScope"/>
+	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="Debug">
+			<resource resourceType="PROJECT" workspacePath="/DAQ_DaughterBoards"/>
+		</configuration>
+		<configuration configurationName="Release">
+			<resource resourceType="PROJECT" workspacePath="/DAQ_DaughterBoards"/>
+		</configuration>
+	</storageModule>
 </cproject>

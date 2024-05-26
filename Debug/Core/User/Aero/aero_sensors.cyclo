@@ -1,4 +1,4 @@
 ../Core/User/aero/aero_sensors.c:23:9:AeroInit	2
-../Core/User/aero/aero_sensors.c:31:16:SetChannel	2
+../Core/User/aero/aero_sensors.c:31:9:SetChannel	2
 ../Core/User/aero/aero_sensors.c:44:9:StartSensorReading	2
 ../Core/User/aero/aero_sensors.c:57:9:ReadData	5

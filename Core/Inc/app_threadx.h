@@ -51,6 +51,7 @@ extern "C" {
 /* USER CODE BEGIN PD */
 #define TX_APP_STACK_SIZE                       512
 #define TX_APP_THREAD_PRIO                      10
+#define TX_ANALOG_PRIO                          11
 /* USER CODE END PD */
 
 /* Main thread defines -------------------------------------------------------*/
