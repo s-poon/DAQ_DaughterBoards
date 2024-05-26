@@ -79,38 +79,38 @@ UINT ThreadX_Init(
 	    return TX_THREAD_ERROR;
 	}
 
-//    if(tx_byte_allocate(bytePool, (VOID**) &pointer, TX_APP_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS){
-//        return TX_POOL_ERROR;
-//    }
-//
-//	if(tx_thread_create(&txMainThread, "txAeroThread", txAeroThreadEntry, 0, pointer,
-//					   TX_APP_STACK_SIZE, 12, TX_APP_THREAD_PREEMPTION_THRESHOLD,
-//					   TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS
-//    ){
-//		return TX_THREAD_ERROR;
-//	}
-//
-//    if(tx_byte_allocate(bytePool, (VOID**) &pointer, TX_APP_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS){
-//        return TX_POOL_ERROR;
-//    }
-//
-//	if(tx_thread_create(&txMainThread, "txCAN500Hz", txCAN500HzThreadEntry, 0, pointer,
-//					   TX_APP_STACK_SIZE, 13, TX_APP_THREAD_PREEMPTION_THRESHOLD,
-//					   TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS
-//    ){
-//		return TX_THREAD_ERROR;
-//	}
-//
-//    if(tx_byte_allocate(bytePool, (VOID**) &pointer, TX_APP_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS){
-//        return TX_POOL_ERROR;
-//    }
-//
-//	if(tx_thread_create(&txMainThread, "txCAN100Hz", txCAN100HzThreadEntry, 0, pointer,
-//					   TX_APP_STACK_SIZE, 14, TX_APP_THREAD_PREEMPTION_THRESHOLD,
-//					   TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS
-//    ){
-//		return TX_THREAD_ERROR;
-//	}
+    if(tx_byte_allocate(bytePool, (VOID**) &pointer, TX_APP_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS){
+        return TX_POOL_ERROR;
+    }
+
+	if(tx_thread_create(&txAeroThread, "txAeroThread", txAeroThreadEntry, 0, pointer,
+					   TX_APP_STACK_SIZE, 12, TX_APP_THREAD_PREEMPTION_THRESHOLD,
+					   TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS
+    ){
+		return TX_THREAD_ERROR;
+	}
+
+    if(tx_byte_allocate(bytePool, (VOID**) &pointer, TX_APP_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS){
+        return TX_POOL_ERROR;
+    }
+
+	if(tx_thread_create(&txCAN500HzThread, "txCAN500Hz", txCAN500HzThreadEntry, 0, pointer,
+					   TX_APP_STACK_SIZE, 13, TX_APP_THREAD_PREEMPTION_THRESHOLD,
+					   TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS
+    ){
+		return TX_THREAD_ERROR;
+	}
+
+    if(tx_byte_allocate(bytePool, (VOID**) &pointer, TX_APP_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS){
+        return TX_POOL_ERROR;
+    }
+
+	if(tx_thread_create(&txCAN100HzThread, "txCAN100Hz", txCAN100HzThreadEntry, 0, pointer,
+					   TX_APP_STACK_SIZE, 14, TX_APP_THREAD_PREEMPTION_THRESHOLD,
+					   TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS
+    ){
+		return TX_THREAD_ERROR;
+	}
 
 	tx_semaphore_create(&semaphoreAnalog, "semaphoreAnalog", 0);
 	tx_semaphore_create(&semaphoreAero, "semaphoreAero", 0);
@@ -186,14 +186,16 @@ void txAeroThreadEntry(
 
     while(1){
         for(int i = 0; i < NUM_AERO_SENSORS; i ++){
-            StartSensorReading(&AeroSensors[i]);
+//            StartSensorReading(&AeroSensors[i]);
+        	SetChannel(i);
         }
+
 
         tx_thread_sleep(20);
 
-        for(int i = 0; i < NUM_AERO_SENSORS; i ++){
-            ReadData(&AeroSensors[i]);
-        }
+//        for(int i = 0; i < NUM_AERO_SENSORS; i ++){
+//            ReadData(&AeroSensors[i]);
+//        }
         aeroData.pressure1 = AeroSensors[0].pressure;
         aeroData.pressure2 = AeroSensors[1].pressure;
         aeroData.pressure3 = AeroSensors[2].pressure;
@@ -202,14 +204,15 @@ void txAeroThreadEntry(
         aeroData.temperature2 = AeroSensors[1].temperature;
         aeroData.temperature3 = AeroSensors[2].temperature;
         ucr_01_front_aero_pack(transmitData, &aeroData, UCR_01_FRONT_AERO_LENGTH);
-        HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &aeroHeader, transmitData);
+        tx_thread_sleep(100);
+//        HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &aeroHeader, transmitData);
     }
 }
 
 void txCAN500HzThreadEntry(ULONG threadInput){
 
     while(1){
-
+    	tx_thread_sleep(1000);
     }
 }
 
@@ -251,7 +254,7 @@ void txCAN100HzThreadEntry(
     	};
     	ucr_01_front_frequency_pack(frequencyData, &frequencyStruct, UCR_01_FRONT_FREQUENCY_LENGTH);
     	tx_semaphore_put(&semaphoreFrequency);
-    	HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &frequencyHeader, frequencyData);
+//    	HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &frequencyHeader, frequencyData);
     	tx_thread_sleep(10);
     }
 }
@@ -316,7 +319,7 @@ void txADS1ThreadInput(
                 .gauge6 = combinedData[5]
             };
             ucr_01_front_strain_gauges1_pack(canTxData, &stuff, UCR_01_FRONT_STRAIN_GAUGES1_LENGTH);
-            HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &exADC1Header, canTxData);
+//            HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &exADC1Header, canTxData);
             inputSet = 0;
             tx_thread_sleep(10);
         }

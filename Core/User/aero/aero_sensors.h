@@ -24,4 +24,8 @@ uint8_t StartSensorReading(aeroSensor_t* sensor);
 uint8_t ReadData(aeroSensor_t* sensor);
 
 
+uint8_t SetChannel(
+    uint8_t sensor
+);
+
 #endif /* INC_AERO_SENSORS_H_ */
