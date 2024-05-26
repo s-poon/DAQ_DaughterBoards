@@ -31,7 +31,7 @@ TX_SEMAPHORE semaphoreExADC1;
 TX_SEMAPHORE semaphoreExADC2;
 TX_SEMAPHORE semaphoreSPI;
 
-
+uint8_t analogRxData[16];
 
 static const uint8_t analogSwitchStates[NUM_ADC_CHANNELS] = {
 	SET_12V,
@@ -43,10 +43,6 @@ static const uint8_t analogSwitchStates[NUM_ADC_CHANNELS] = {
 	SET_12V,
 	SET_12V
 };
-
-
-
-uint8_t frequencyData[16];
 
 
 UINT ThreadX_Init(

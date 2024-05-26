@@ -82,7 +82,7 @@ uint8_t set12VSensor(
 	if(NULL == self){
 		retval = UCR_NPTR;
 	}
-	HAL_GPIO_WritePin(&self->port, self->pin, SET_12V);
+	HAL_GPIO_WritePin(self->port, self->pin, SET_12V);
 	return retval;
 }
 
@@ -93,6 +93,6 @@ uint8_t set5VSensor(
 	if(NULL == self){
 		retval = UCR_NPTR;
 	}
-	HAL_GPIO_WritePin(&self->port, self->pin, SET_5V);
+	HAL_GPIO_WritePin(self->port, self->pin, SET_5V);
 	return retval;
 }
