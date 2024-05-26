@@ -116,7 +116,7 @@ UINT ThreadX_Init(
 	tx_semaphore_create(&semaphoreSPI, "semaphoreSPI", 0);
     
 
-	return ret;
+	return retVal;
 }
 
 
@@ -135,12 +135,22 @@ void txMainThreadEntry(
 	}
 }
 
-void txAnalogThreadEntry(
-    ULONG threadInput
-){
-    uint8_t analogRxData[16];
-    uint32_t adcValues[8];
+void txAnalogThreadEntry(ULONG threadInput){
+    uint8_t analogRxData[UCR_01_FRONT_ANALOG_LENGTH];
+    uint32_t adcValues[NUM_ADC_CHANNELS];
     setAnalogSwitches(analogSwitchStates);
+
+    FDCAN_TxHeaderTypeDef analogHeader = {
+            .Identifier = UCR_01_FRONT_ANALOG_FRAME_ID,
+            .IdType = FDCAN_STANDARD_ID,
+            .TxFrameType = FDCAN_DATA_FRAME,
+            .DataLength = FDCAN_DLC_BYTES_16,
+            .ErrorStateIndicator = FDCAN_ESI_ACTIVE,
+            .BitRateSwitch = FDCAN_BRS_ON,
+            .FDFormat = FDCAN_FD_CAN,
+            .TxEventFifoControl = FDCAN_NO_TX_EVENTS,
+            .MessageMarker = 0
+    };
 
     while(1){
         HAL_ADC_Start_DMA(&hadc4, adcValues, NUM_ADC_CHANNELS);
@@ -156,6 +166,7 @@ void txAnalogThreadEntry(
             .analog8 = adcValues[7]
         };
         ucr_01_front_analog_pack(analogRxData, &analogStruct, UCR_01_FRONT_ANALOG_LENGTH);
+        HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &analogHeader, analogRxData);
         tx_thread_sleep(2);
     }
 }
@@ -223,15 +234,15 @@ void txCAN100HzThreadEntry(
 	uint32_t frequency[NUM_FREQUENCY_CHANNELS];
 	uint8_t frequencyData[UCR_01_FRONT_FREQUENCY_LENGTH];
 	FDCAN_TxHeaderTypeDef frequencyHeader = {
-        .Identifier = UCR_01_FRONT_ANALOG_FRAME_ID,
-        .IdType = FDCAN_STANDARD_ID,
-        .TxFrameType = FDCAN_DATA_FRAME,
-        .DataLength = FDCAN_DLC_BYTES_16,
-        .ErrorStateIndicator = FDCAN_ESI_ACTIVE,
-        .BitRateSwitch = FDCAN_BRS_ON,
-        .FDFormat = FDCAN_FD_CAN,
-        .TxEventFifoControl = FDCAN_NO_TX_EVENTS,
-        .MessageMarker = 0
+	        .Identifier = UCR_01_FRONT_FREQUENCY_FRAME_ID,
+	        .IdType = FDCAN_STANDARD_ID,
+	        .TxFrameType = FDCAN_DATA_FRAME,
+	        .DataLength = FDCAN_DLC_BYTES_16,
+	        .ErrorStateIndicator = FDCAN_ESI_ACTIVE,
+	        .BitRateSwitch = FDCAN_BRS_ON,
+	        .FDFormat = FDCAN_FD_CAN,
+	        .TxEventFifoControl = FDCAN_NO_TX_EVENTS,
+	        .MessageMarker = 0
 	};
 
     while(1){
