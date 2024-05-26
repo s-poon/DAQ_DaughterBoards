@@ -89,7 +89,7 @@ UINT ThreadX_Init(
 	tx_semaphore_create(&semaphoreAero, "semaphoreAero", 0);
 	tx_semaphore_create(&semaphoreFrequency, "semaphoreFrequency", 1);
 
-	return retVal;
+	return ret;
 }
 
 

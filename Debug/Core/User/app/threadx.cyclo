@@ -1,6 +1,17 @@
+<<<<<<< Updated upstream
 ../Core/User/app/threadx.c:46:6:ThreadX_Init	7
 ../Core/User/app/threadx.c:96:6:txMainThreadEntry	1
 ../Core/User/app/threadx.c:111:6:txAnalogThreadEntry	1
 ../Core/User/app/threadx.c:136:6:txAeroThreadEntry	3
 ../Core/User/app/threadx.c:178:6:txCAN500HzThreadEntry	1
 ../Core/User/app/threadx.c:185:6:txCAN100HzThreadEntry	2
+=======
+../Core/User/app/threadx.c:48:6:ThreadX_Init	11
+../Core/User/app/threadx.c:123:6:txMainThreadEntry	1
+../Core/User/app/threadx.c:138:6:txAnalogThreadEntry	1
+../Core/User/app/threadx.c:174:6:txAeroThreadEntry	2
+../Core/User/app/threadx.c:219:6:txCAN500HzThreadEntry	1
+../Core/User/app/threadx.c:226:6:txCAN100HzThreadEntry	2
+../Core/User/app/threadx.c:269:6:txADS1ThreadInput	2
+../Core/User/app/threadx.c:337:6:txADS2ThreadInput	1
+>>>>>>> Stashed changes
