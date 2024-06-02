@@ -23,6 +23,7 @@ TX_THREAD txAnalogThread;
 TX_THREAD txAeroThread;
 TX_THREAD txCAN500HzThread;
 TX_THREAD txCAN100HzThread;
+TX_THREAD txStrainThread;
 
 TX_SEMAPHORE semaphoreAnalog;
 TX_SEMAPHORE semaphoreAero;
@@ -108,6 +109,13 @@ UINT ThreadX_Init(
 		return TX_THREAD_ERROR;
 	}
 
+//	if(tx_thread_create(&txStrainThread, "txStrainThread", txADS1ThreadInput, 0, pointer,
+//                       TX_APP_STACK_SIZE, 15, TX_APP_THREAD_PREEMPTION_THRESHOLD,
+//                       TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS
+//    ){
+//        return TX_THREAD_ERROR;
+//    }
+
 	tx_semaphore_create(&semaphoreAnalog, "semaphoreAnalog", 0);
 	tx_semaphore_create(&semaphoreAero, "semaphoreAero", 0);
 	tx_semaphore_create(&semaphoreFrequency, "semaphoreFrequency", 1);
@@ -129,8 +137,10 @@ void txMainThreadEntry(
     HAL_TIM_IC_Start_IT(&htim2, TIM_CHANNEL_3);
     HAL_TIM_IC_Start_IT(&htim2, TIM_CHANNEL_4);
 
+
 	while(1){
 	    HAL_GPIO_TogglePin(STATUS_LED_GPIO_Port, STATUS_LED_Pin);
+
 	    tx_thread_sleep(1000);
 	}
 }
@@ -151,10 +161,14 @@ void txAnalogThreadEntry(ULONG threadInput){
             .TxEventFifoControl = FDCAN_NO_TX_EVENTS,
             .MessageMarker = 0
     };
-
+    uint32_t stuff = 0;
     while(1){
         HAL_ADC_Start_DMA(&hadc4, adcValues, NUM_ADC_CHANNELS);
         tx_semaphore_get(&semaphoreAnalog, TX_WAIT_FOREVER);
+        for(int i = 0; i < 8; i++){
+            adcValues[i] = stuff;
+        }
+        stuff ++;
         struct ucr_01_front_analog_t analogStruct = {
             .analog1 = adcValues[0],
             .analog2 = adcValues[1],
@@ -167,7 +181,7 @@ void txAnalogThreadEntry(ULONG threadInput){
         };
         ucr_01_front_analog_pack(analogRxData, &analogStruct, UCR_01_FRONT_ANALOG_LENGTH);
         HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &analogHeader, analogRxData);
-        tx_thread_sleep(2);
+        tx_thread_sleep(1);
     }
 }
 
@@ -193,16 +207,13 @@ void txAeroThreadEntry(
 
     while(1){
         for(int i = 0; i < NUM_AERO_SENSORS; i ++){
-//            StartSensorReading(&AeroSensors[i]);
-        	SetChannel(i);
+            StartSensorReading(&AeroSensors[i]);
         }
-
-
         tx_thread_sleep(20);
 
-//        for(int i = 0; i < NUM_AERO_SENSORS; i ++){
-//            ReadData(&AeroSensors[i]);
-//        }
+        for(int i = 0; i < NUM_AERO_SENSORS; i ++){
+            ReadData(&AeroSensors[i]);
+        }
         aeroData.pressure1 = AeroSensors[0].pressure;
         aeroData.pressure2 = AeroSensors[1].pressure;
         aeroData.pressure3 = AeroSensors[2].pressure;
@@ -211,8 +222,8 @@ void txAeroThreadEntry(
         aeroData.temperature2 = AeroSensors[1].temperature;
         aeroData.temperature3 = AeroSensors[2].temperature;
         ucr_01_front_aero_pack(transmitData, &aeroData, UCR_01_FRONT_AERO_LENGTH);
-        tx_thread_sleep(100);
-//        HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &aeroHeader, transmitData);
+        tx_thread_sleep(80);
+        HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &aeroHeader, transmitData);
     }
 }
 
@@ -230,14 +241,14 @@ void txCAN100HzThreadEntry(
 
     }
 	uint8_t preScalar = htim2.Init.Prescaler + 1;
-    float refClock = TIMCLOCK/(preScalar);
-	uint32_t frequency[NUM_FREQUENCY_CHANNELS];
+    double refClock = TIMCLOCK/(preScalar);
+	double frequency[NUM_FREQUENCY_CHANNELS];
 	uint8_t frequencyData[UCR_01_FRONT_FREQUENCY_LENGTH];
 	FDCAN_TxHeaderTypeDef frequencyHeader = {
-	        .Identifier = UCR_01_FRONT_FREQUENCY_FRAME_ID,
+	        .Identifier = UCR_01_REAR_FREQUENCY_FRAME_ID,
 	        .IdType = FDCAN_STANDARD_ID,
 	        .TxFrameType = FDCAN_DATA_FRAME,
-	        .DataLength = FDCAN_DLC_BYTES_16,
+	        .DataLength = FDCAN_DLC_BYTES_32,
 	        .ErrorStateIndicator = FDCAN_ESI_ACTIVE,
 	        .BitRateSwitch = FDCAN_BRS_ON,
 	        .FDFormat = FDCAN_FD_CAN,
@@ -245,24 +256,58 @@ void txCAN100HzThreadEntry(
 	        .MessageMarker = 0
 	};
 
+	uint8_t canTxData[20];
+    uint32_t combinedData[6];
+    FDCAN_TxHeaderTypeDef exADC1Header = {
+        .Identifier = UCR_01_FRONT_STRAIN_GAUGES1_FRAME_ID,
+        .IdType = FDCAN_STANDARD_ID,
+        .TxFrameType = FDCAN_DATA_FRAME,
+        .DataLength = FDCAN_DLC_BYTES_20,
+        .ErrorStateIndicator = FDCAN_ESI_ACTIVE,
+        .BitRateSwitch = FDCAN_BRS_ON,
+        .FDFormat = FDCAN_FD_CAN,
+        .TxEventFifoControl = FDCAN_NO_TX_EVENTS,
+        .MessageMarker = 0
+    };
+    uint32_t thing = 0;
+
     while(1){
         // Acquire the semaphore
     	tx_semaphore_get(&semaphoreFrequency, TX_WAIT_FOREVER);
     	// Convert the data to frequency and encode it
     	for(int i = 0; i < 4; i ++){
-			float value = refClock / ChannelData[i].difference;
-			frequency[i] = ucr_01_front_frequency_frequency1_encode(value);
+    	    if(!ChannelData[i].difference){
+    	        frequency[i] = 0;
+    	    }else{
+    	        frequency[i] = refClock / ChannelData[i].difference;
+    	    }
     	}
-    	struct ucr_01_front_frequency_t frequencyStruct = {
+    	struct ucr_01_rear_frequency_t frequencyStruct = {
     	        .frequency1 = frequency[0],
     	        .frequency2 = frequency[1],
     	        .frequency3 = frequency[2],
     	        .frequency4 = frequency[3]
     	};
-    	ucr_01_front_frequency_pack(frequencyData, &frequencyStruct, UCR_01_FRONT_FREQUENCY_LENGTH);
+    	ucr_01_rear_frequency_pack(frequencyData, &frequencyStruct, UCR_01_FRONT_FREQUENCY_LENGTH);
     	tx_semaphore_put(&semaphoreFrequency);
-//    	HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &frequencyHeader, frequencyData);
-    	tx_thread_sleep(10);
+    	HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &frequencyHeader, frequencyData);
+
+
+//    	for(int i = 0; i < 6; i++){
+//            combinedData[i] = thing;
+//        }
+//        thing ++;
+//        struct ucr_01_front_strain_gauges1_t stuff = {
+//            .gauge1 = combinedData[0],
+//            .gauge2 = combinedData[1],
+//            .gauge3 = combinedData[2],
+//            .gauge4 = combinedData[3],
+//            .gauge5 = combinedData[4],
+//            .gauge6 = combinedData[5]
+//        };
+//        ucr_01_front_strain_gauges1_pack(canTxData, &stuff, UCR_01_FRONT_STRAIN_GAUGES1_LENGTH);
+//        HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &exADC1Header, canTxData);
+        tx_thread_sleep(10);
     }
 }
 
@@ -292,45 +337,58 @@ void txADS1ThreadInput(
         0x00,
         adcMuxStates[inputSet]
     };
-    uint32_t combinedData[6];
-    FDCAN_TxHeaderTypeDef exADC1Header = {
-        .Identifier = UCR_01_FRONT_STRAIN_GAUGES1_FRAME_ID,
-        .IdType = FDCAN_STANDARD_ID,
-        .TxFrameType = FDCAN_DATA_FRAME,
-        .DataLength = FDCAN_DLC_BYTES_20,
-        .ErrorStateIndicator = FDCAN_ESI_ACTIVE,
-        .BitRateSwitch = FDCAN_BRS_ON,
-        .FDFormat = FDCAN_FD_CAN,
-        .TxEventFifoControl = FDCAN_NO_TX_EVENTS,
-        .MessageMarker = 0
-    };
-
+//    uint32_t combinedData[6];
+//    FDCAN_TxHeaderTypeDef exADC1Header = {
+//        .Identifier = UCR_01_FRONT_STRAIN_GAUGES1_FRAME_ID,
+//        .IdType = FDCAN_STANDARD_ID,
+//        .TxFrameType = FDCAN_DATA_FRAME,
+//        .DataLength = FDCAN_DLC_BYTES_20,
+//        .ErrorStateIndicator = FDCAN_ESI_ACTIVE,
+//        .BitRateSwitch = FDCAN_BRS_ON,
+//        .FDFormat = FDCAN_FD_CAN,
+//        .TxEventFifoControl = FDCAN_NO_TX_EVENTS,
+//        .MessageMarker = 0
+//    };
+//    uint32_t thing = 0;
     while(1){
-        // Wait for conversion to finish
-        tx_semaphore_get(&semaphoreExADC1, TX_WAIT_FOREVER);
-        // Start send receive
-        HAL_GPIO_WritePin(externalADC1.csPinPort, externalADC1.csPin, 1);
-        // Receive data and also set the inputs to the next inputs
-        HAL_SPI_TransmitReceive_DMA(&hspi4, txData, rxData, 4);
-        // Wait for data reception
-        tx_semaphore_get(&semaphoreExADC1, TX_WAIT_FOREVER);
-        combinedData[inputSet] = (rxData[0] << 16) + (rxData[1] << 8) + rxData[2];
-        txData[2] = adcMuxStates[inputSet++];
-        if(inputSet == 6){
-            struct ucr_01_front_strain_gauges1_t stuff = {
-                .gauge1 = combinedData[0],
-                .gauge2 = combinedData[1],
-                .gauge3 = combinedData[2],
-                .gauge4 = combinedData[3],
-                .gauge5 = combinedData[4],
-                .gauge6 = combinedData[5]
-            };
-            ucr_01_front_strain_gauges1_pack(canTxData, &stuff, UCR_01_FRONT_STRAIN_GAUGES1_LENGTH);
-//            HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &exADC1Header, canTxData);
-            inputSet = 0;
-            tx_thread_sleep(10);
-        }
-
+//        // Wait for conversion to finish
+//        tx_semaphore_get(&semaphoreExADC1, TX_WAIT_FOREVER);
+//        // Start send receive
+//        HAL_GPIO_WritePin(externalADC1.csPinPort, externalADC1.csPin, 1);
+//        // Receive data and also set the inputs to the next inputs
+//        HAL_SPI_TransmitReceive_DMA(&hspi4, txData, rxData, 4);
+//        // Wait for data reception
+//        tx_semaphore_get(&semaphoreExADC1, TX_WAIT_FOREVER);
+//        combinedData[inputSet] = (rxData[0] << 16) + (rxData[1] << 8) + rxData[2];
+//        txData[2] = adcMuxStates[inputSet++];
+//        if(inputSet == 6){
+//            struct ucr_01_front_strain_gauges1_t stuff = {
+//                .gauge1 = combinedData[0],
+//                .gauge2 = combinedData[1],
+//                .gauge3 = combinedData[2],
+//                .gauge4 = combinedData[3],
+//                .gauge5 = combinedData[4],
+//                .gauge6 = combinedData[5]
+//            };
+//            ucr_01_front_strain_gauges1_pack(canTxData, &stuff, UCR_01_FRONT_STRAIN_GAUGES1_LENGTH);
+////            HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &exADC1Header, canTxData);
+//            inputSet = 0;
+//            tx_thread_sleep(10);
+//        for(int i = 0; i < 6; i++){
+//            combinedData[i] = thing;
+//        }
+//        thing ++;
+//        struct ucr_01_front_strain_gauges1_t stuff = {
+//            .gauge1 = combinedData[0],
+//            .gauge2 = combinedData[1],
+//            .gauge3 = combinedData[2],
+//            .gauge4 = combinedData[3],
+//            .gauge5 = combinedData[4],
+//            .gauge6 = combinedData[5]
+//        };
+//        ucr_01_front_strain_gauges1_pack(canTxData, &stuff, UCR_01_FRONT_STRAIN_GAUGES1_LENGTH);
+//        HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &exADC1Header, canTxData);
+//        tx_thread_sleep(10);
     }
 }
 

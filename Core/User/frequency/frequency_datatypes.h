@@ -13,12 +13,13 @@
 #include "threadx.h"
 
 #define NUM_FREQUENCY_CHANNELS		(4u)
-#define FREQUENCY_RESET_TIME        (500u)
+#define FREQUENCY_RESET_TIME        (5000u)
 
 typedef struct{
         uint32_t firstValue;
         uint32_t secondValue;
         bool isFirstCapture;
+        bool zeroReset;
         TX_TIMER resetTimer;
         uint8_t halChannel;
         uint32_t difference;

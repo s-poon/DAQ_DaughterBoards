@@ -1,4 +1,8 @@
-../Core/User/aero/aero_sensors.c:23:9:AeroInit	2
-../Core/User/aero/aero_sensors.c:31:9:SetChannel	2
-../Core/User/aero/aero_sensors.c:44:9:StartSensorReading	2
-../Core/User/aero/aero_sensors.c:57:9:ReadData	5
+../Core/User/aero/aero_sensors.c:25:9:AeroInit	2
+../Core/User/aero/aero_sensors.c:33:9:SetChannel	4
+../Core/User/aero/aero_sensors.c:51:9:StartSensorReading	4
+../Core/User/aero/aero_sensors.c:69:9:ReadData	8
+../Core/User/aero/aero_sensors.c:113:6:HAL_I2C_MasterTxCpltCallback	1
+../Core/User/aero/aero_sensors.c:118:6:HAL_I2C_MasterRxCpltCallback	1
+../Core/User/aero/aero_sensors.c:123:6:HAL_I2C_MemRxCpltCallback	1
+../Core/User/aero/aero_sensors.c:128:6:HAL_I2C_MemTxCpltCallback	1

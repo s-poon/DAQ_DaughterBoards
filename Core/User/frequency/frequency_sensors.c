@@ -25,11 +25,12 @@ uint8_t FrequencyInit(void){
         ChannelData[i].firstValue = 0;
         ChannelData[i].secondValue = 0;
         ChannelData[i].isFirstCapture = false;
+//        ChannelData[i].zeroReset = true;
     }
-    ChannelData[0].halChannel = HAL_TIM_ACTIVE_CHANNEL_1;
-    ChannelData[1].halChannel = HAL_TIM_ACTIVE_CHANNEL_2;
-    ChannelData[2].halChannel = HAL_TIM_ACTIVE_CHANNEL_3;
-    ChannelData[3].halChannel = HAL_TIM_ACTIVE_CHANNEL_4;
+    ChannelData[0].halChannel = TIM_CHANNEL_1;
+    ChannelData[1].halChannel = TIM_CHANNEL_2;
+    ChannelData[2].halChannel = TIM_CHANNEL_3;
+    ChannelData[3].halChannel = TIM_CHANNEL_4;
 
     tx_timer_create(&ChannelData[0].resetTimer, "resetTimer1", 
         timerExpirationFrequency, 0, FREQUENCY_RESET_TIME, 0, TX_NO_ACTIVATE);
@@ -81,28 +82,33 @@ static uint8_t CalculateFrequency(
         retVal = UCR_NOT_OK;
         return retVal;
     }
-    if (channel->isFirstCapture == false){
+
+    if(!channel->isFirstCapture){
         if(TX_SUCCESS != tx_timer_activate(&channel->resetTimer)){
                    // ADD error handler stuff here;
         }
         channel->firstValue = HAL_TIM_ReadCapturedValue(htim, channel->halChannel);
         // Set flag to indicate next value will be second rising edge
         channel->isFirstCapture = true;
-    } else if (true == channel->isFirstCapture){
+    }else{
         // Stop the reset timer
         if(TX_SUCCESS != tx_timer_deactivate(&channel->resetTimer)){
             // ADD error handler stuff here;
         }
         channel->secondValue = HAL_TIM_ReadCapturedValue(htim, channel->halChannel);
         // Check if the first capture was before the second
-        if (channel->secondValue > channel->firstValue){
+        if(channel->secondValue > channel->firstValue){
             // Calculate the difference
             channel->difference = channel->secondValue - channel->firstValue;
         } else if (channel->secondValue < channel->firstValue){
             channel->difference = ((htim->Init.Period - channel->firstValue) + channel->secondValue) + 1;
         }
         // Reset the first capture state
-        channel->isFirstCapture = false;
+//        channel->isFirstCapture = false;
+        channel->firstValue = channel->secondValue;
+        if(TX_SUCCESS != tx_timer_activate(&channel->resetTimer)){
+                   // ADD error handler stuff here;
+        }
     }
     // Release the semaphore
     if(TX_SUCCESS != tx_semaphore_put(&semaphoreFrequency)){

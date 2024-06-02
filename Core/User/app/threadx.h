@@ -21,6 +21,7 @@ void txCAN500HzThreadEntry(ULONG threadInput);
 void txCAN100HzThreadEntry(ULONG threadInput);
 void txCAN50HzThreadEntry(ULONG threadInput);
 void txCAN10HzThreadEntry(ULONG threadInput);
+void txADS1ThreadInput(ULONG threadInput);
 
 extern TX_SEMAPHORE semaphoreAnalog;
 extern TX_SEMAPHORE semaphoreAero;
