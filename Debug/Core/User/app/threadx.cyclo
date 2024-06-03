@@ -1,8 +1,0 @@
-../Core/User/app/threadx.c:49:6:ThreadX_Init	11
-../Core/User/app/threadx.c:131:6:txMainThreadEntry	1
-../Core/User/app/threadx.c:148:6:txAnalogThreadEntry	2
-../Core/User/app/threadx.c:188:6:txAeroThreadEntry	3
-../Core/User/app/threadx.c:230:6:txCAN500HzThreadEntry	1
-../Core/User/app/threadx.c:237:6:txCAN100HzThreadEntry	3
-../Core/User/app/threadx.c:314:6:txADS1ThreadInput	1
-../Core/User/app/threadx.c:395:6:txADS2ThreadInput	1

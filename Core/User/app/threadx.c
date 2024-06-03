@@ -13,6 +13,7 @@
 #include "../../vendor_generated/can_tools/can.h"
 #include "strain_gauges.h"
 #include "spi.h"
+#include "../../vendor_generated/can_tools/can_api.h"
 
 extern frequency_t ChannelData[4];
 extern aeroSensor_t AeroSensors[NUM_AERO_SENSORS];
@@ -169,7 +170,7 @@ void txAnalogThreadEntry(ULONG threadInput){
             adcValues[i] = stuff;
         }
         stuff ++;
-        struct ucr_01_front_analog_t analogStruct = {
+        struct analogData_t analogStruct = {
             .analog1 = adcValues[0],
             .analog2 = adcValues[1],
             .analog3 = adcValues[2],
@@ -179,7 +180,7 @@ void txAnalogThreadEntry(ULONG threadInput){
             .analog7 = adcValues[6],
             .analog8 = adcValues[7]
         };
-        ucr_01_front_analog_pack(analogRxData, &analogStruct, UCR_01_FRONT_ANALOG_LENGTH);
+        analogPack(analogRxData, &analogStruct, UCR_01_FRONT_ANALOG_LENGTH);
         HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &analogHeader, analogRxData);
         tx_thread_sleep(1);
     }

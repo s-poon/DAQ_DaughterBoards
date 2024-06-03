@@ -1073,7 +1073,6 @@ typedef struct TX_SEMAPHORE_STRUCT
 
 } TX_SEMAPHORE;
 
-
 /* Define the system API mappings based on the error checking
    selected by the user.  Note: this section is only applicable to
    application source code, hence the conditional that turns off this
