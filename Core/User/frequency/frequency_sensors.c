@@ -104,7 +104,6 @@ static uint8_t CalculateFrequency(
             channel->difference = ((htim->Init.Period - channel->firstValue) + channel->secondValue) + 1;
         }
         // Reset the first capture state
-//        channel->isFirstCapture = false;
         channel->firstValue = channel->secondValue;
         if(TX_SUCCESS != tx_timer_activate(&channel->resetTimer)){
                    // ADD error handler stuff here;
