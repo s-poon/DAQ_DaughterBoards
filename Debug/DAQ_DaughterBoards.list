@@ -39,13 +39,13 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING, OCTETS
  17 .debug_line   00041e46  00000000  00000000  00089c98  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_str    0012a755  00000000  00000000  000cbade  2**0
+ 18 .debug_str    0012a74c  00000000  00000000  000cbade  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .comment      00000043  00000000  00000000  001f6233  2**0
+ 19 .comment      00000043  00000000  00000000  001f622a  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  0000adb4  00000000  00000000  001f6278  2**2
+ 20 .debug_frame  0000adb4  00000000  00000000  001f6270  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 21 .debug_line_str 000000fd  00000000  00000000  0020102c  2**0
+ 21 .debug_line_str 000000f4  00000000  00000000  00201024  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -5797,8 +5797,8 @@ void txAnalogThreadEntry(ULONG threadInput){
  800219a:	4619      	mov	r1, r3
  800219c:	4807      	ldr	r0, [pc, #28]	@ (80021bc <txAnalogThreadEntry+0xa4>)
  800219e:	f003 faed 	bl	800577c <HAL_FDCAN_AddMessageToTxFifoQ>
-        tx_thread_sleep(1);
- 80021a2:	2001      	movs	r0, #1
+        tx_thread_sleep(4);
+ 80021a2:	2004      	movs	r0, #4
  80021a4:	f009 fe0e 	bl	800bdc4 <_tx_thread_sleep>
     while(1){
  80021a8:	bf00      	nop

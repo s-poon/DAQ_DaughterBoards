@@ -178,7 +178,7 @@ void txAnalogThreadEntry(ULONG threadInput){
         };
         analogPack(analogRxData, &analogStruct, ANALOG_DATA_LENGTH);
         HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &analogHeader, analogRxData);
-        tx_thread_sleep(1);
+        tx_thread_sleep(4);
     }
 }
 
