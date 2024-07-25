@@ -12,6 +12,7 @@ RM := rm -rf
 -include Middlewares/ST/threadx/ports/cortex_m4/gnu/src/subdir.mk
 -include Middlewares/ST/threadx/common/src/subdir.mk
 -include Drivers/STM32G4xx_HAL_Driver/Src/subdir.mk
+-include Core/vendor_generated/ti/subdir.mk
 -include Core/vendor_generated/can_tools/subdir.mk
 -include Core/User/strain_gauges/subdir.mk
 -include Core/User/gpio/subdir.mk
@@ -70,8 +71,8 @@ all: main-build
 main-build: DAQ_DaughterBoards.elf secondary-outputs
 
 # Tool invocations
-DAQ_DaughterBoards.elf DAQ_DaughterBoards.map: $(OBJS) $(USER_OBJS) C:\Users\steve\Documents\DAQ_DaughterBoards\STM32G474VETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "DAQ_DaughterBoards.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\steve\Documents\DAQ_DaughterBoards\STM32G474VETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="DAQ_DaughterBoards.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+DAQ_DaughterBoards.elf DAQ_DaughterBoards.map: $(OBJS) $(USER_OBJS) C:\Users\Steven\Documents\GitRepo\DAQ_DaughterBoards\STM32G474VETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "DAQ_DaughterBoards.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\Steven\Documents\GitRepo\DAQ_DaughterBoards\STM32G474VETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="DAQ_DaughterBoards.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

@@ -1,0 +1,5 @@
+../Core/vendor_generated/ti/crc.c:71:6:initCRC	1
+../Core/vendor_generated/ti/crc.c:99:9:getCRC	2
+../Core/vendor_generated/ti/crc.c:121:13:initTable	2
+../Core/vendor_generated/ti/crc.c:144:16:lookupCRC	2
+../Core/vendor_generated/ti/crc.c:170:16:calculateCRC	4

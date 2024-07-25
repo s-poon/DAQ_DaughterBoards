@@ -111,12 +111,16 @@ UINT ThreadX_Init(
 		return TX_THREAD_ERROR;
 	}
 
-//	if(tx_thread_create(&txStrainThread, "txStrainThread", txADS1ThreadInput, 0, pointer,
-//                       TX_APP_STACK_SIZE, 15, TX_APP_THREAD_PREEMPTION_THRESHOLD,
-//                       TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS
-//    ){
-//        return TX_THREAD_ERROR;
-//    }
+    if(tx_byte_allocate(bytePool, (VOID**) &pointer, TX_APP_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS){
+        return TX_POOL_ERROR;
+    }
+
+	if(tx_thread_create(&txStrainThread, "txStrainThread", txADS1ThreadInput, 0, pointer,
+                       TX_APP_STACK_SIZE, 15, TX_APP_THREAD_PREEMPTION_THRESHOLD,
+                       TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS
+    ){
+        return TX_THREAD_ERROR;
+    }
 
 	tx_semaphore_create(&semaphoreAnalog, "semaphoreAnalog", 0);
 	tx_semaphore_create(&semaphoreAero, "semaphoreAero", 0);
@@ -284,26 +288,41 @@ void txADS1ThreadInput(
     uint8_t rxData[3];
     uint8_t inputSet = 0;
     uint8_t canTxData[20];
-    InitDevice();
-    // Set up registers
-    // clear Power on reset flag
-    uint8_t data = 0x00;
-    WriteRegister(&externalADC1, STATUS_ADDR_MASK, data);
+    uint64_t combinedData[6];
+    externalADC1.csPinPort = CS1_GPIO_Port;
+    externalADC1.csPin = CS1_Pin;
+    externalADC1.startSyncPinPort = STARTSYNC_1_GPIO_Port;
+    externalADC1.startSyncPin = STARTSYNC_1_Pin;
+    externalADC1.resetPinPort = RESET1_GPIO_Port;
+    externalADC1.resetPin = RESET1_Pin;
+    externalADC1.drdyPinPort = DRDY1_GPIO_Port;
+    externalADC1.drdyPin = DRDY1_Pin;
 
-    // Set the PGA
-    data = ADS_DELAY_14 + ADS_PGA_ENABLED + ADS_GAIN_4;
+    HAL_GPIO_WritePin(CS1_GPIO_Port, CS1_Pin, SET);
+    HAL_GPIO_WritePin(CS2_GPIO_Port, CS2_Pin, SET);
+    // Delay to allow power supplies to settle
+    HAL_Delay(5);
+
+    // Set up registers
+    StartUpRoutine(&externalADC1);
+
+//    WriteRegister(&externalADC1, STATUS_ADDR_MASK, data);
+//
+//    // Set the PGA
+    uint8_t data = ADS_DELAY_14 + ADS_PGA_ENABLED + ADS_GAIN_1;
     WriteRegister(&externalADC1, PGA_ADDR_MASK, data);
-    // Use single shot conversions
+//
+//    // Use single shot conversions
     data = ADS_CONVMODE_SS + ADS_DR_4000;
     WriteRegister(&externalADC1, DATARATE_ADDR_MASK, data);
-
-    // Start Conversions
-    SendCommand(&externalADC1, START_OPCODE_MASK);
-    uint8_t txData[3] = {
-        REGWR_OPCODE_MASK + INPMUX_ADDR_MASK,
-        0x00,
-        adcMuxStates[inputSet]
-    };
+//
+//    // Start Conversions
+//    SendCommand(&externalADC1, START_OPCODE_MASK);
+//    uint8_t txData[3] = {
+//        REGWR_OPCODE_MASK + INPMUX_ADDR_MASK,
+//        0x00,
+//        adcMuxStates[inputSet]
+//    };
 //    uint32_t combinedData[6];
 //    FDCAN_TxHeaderTypeDef exADC1Header = {
 //        .Identifier = UCR_01_FRONT_STRAIN_GAUGES1_FRAME_ID,
@@ -318,16 +337,20 @@ void txADS1ThreadInput(
 //    };
 //    uint32_t thing = 0;
     while(1){
-//        // Wait for conversion to finish
+        // Wait for conversion to finish
 //        tx_semaphore_get(&semaphoreExADC1, TX_WAIT_FOREVER);
-//        // Start send receive
+        // Start send receive
 //        HAL_GPIO_WritePin(externalADC1.csPinPort, externalADC1.csPin, 1);
 //        // Receive data and also set the inputs to the next inputs
-//        HAL_SPI_TransmitReceive_DMA(&hspi4, txData, rxData, 4);
-//        // Wait for data reception
+////        HAL_SPI_TransmitReceive_DMA(&hspi4, txData, rxData, 4);
+//        HAL_SPI_Transmit(&hspi4, txData, Size, Timeout)
+        // Wait for data reception
 //        tx_semaphore_get(&semaphoreExADC1, TX_WAIT_FOREVER);
 //        combinedData[inputSet] = (rxData[0] << 16) + (rxData[1] << 8) + rxData[2];
 //        txData[2] = adcMuxStates[inputSet++];
+//        if(inputSet == 6){
+//            inputSet = 0;
+//        }
 //        if(inputSet == 6){
 //            struct ucr_01_front_strain_gauges1_t stuff = {
 //                .gauge1 = combinedData[0],
@@ -341,21 +364,22 @@ void txADS1ThreadInput(
 ////            HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &exADC1Header, canTxData);
 //            inputSet = 0;
 //            tx_thread_sleep(10);
-//        for(int i = 0; i < 6; i++){
-//            combinedData[i] = thing;
+////        for(int i = 0; i < 6; i++){
+////            combinedData[i] = thing;
+////        }
+////        thing ++;
+////        struct ucr_01_front_strain_gauges1_t stuff = {
+////            .gauge1 = combinedData[0],
+////            .gauge2 = combinedData[1],
+////            .gauge3 = combinedData[2],
+////            .gauge4 = combinedData[3],
+////            .gauge5 = combinedData[4],
+////            .gauge6 = combinedData[5]
+////        };
+////        ucr_01_front_strain_gauges1_pack(canTxData, &stuff, UCR_01_FRONT_STRAIN_GAUGES1_LENGTH);
+////        HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &exADC1Header, canTxData);
 //        }
-//        thing ++;
-//        struct ucr_01_front_strain_gauges1_t stuff = {
-//            .gauge1 = combinedData[0],
-//            .gauge2 = combinedData[1],
-//            .gauge3 = combinedData[2],
-//            .gauge4 = combinedData[3],
-//            .gauge5 = combinedData[4],
-//            .gauge6 = combinedData[5]
-//        };
-//        ucr_01_front_strain_gauges1_pack(canTxData, &stuff, UCR_01_FRONT_STRAIN_GAUGES1_LENGTH);
-//        HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &exADC1Header, canTxData);
-//        tx_thread_sleep(10);
+        tx_thread_sleep(100);
     }
 }
 

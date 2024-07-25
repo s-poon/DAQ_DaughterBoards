@@ -32,6 +32,7 @@ Core/User/frequency \
 Core/User/gpio \
 Core/User/strain_gauges \
 Core/vendor_generated/can_tools \
+Core/vendor_generated/ti \
 Drivers/STM32G4xx_HAL_Driver/Src \
 Middlewares/ST/threadx/common/src \
 Middlewares/ST/threadx/ports/cortex_m4/gnu/src \

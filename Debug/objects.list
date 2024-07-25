@@ -25,6 +25,7 @@
 "./Core/User/gpio/exti.o"
 "./Core/User/strain_gauges/strain_gauges.o"
 "./Core/vendor_generated/can_tools/can.o"
+"./Core/vendor_generated/ti/crc.o"
 "./Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal.o"
 "./Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_adc.o"
 "./Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_adc_ex.o"

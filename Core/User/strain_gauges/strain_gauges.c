@@ -10,6 +10,7 @@
 #include "threadx.h"
 #include "ucr_common.h"
 #include "spi.h"
+#include "../../vendor_generated/ti/crc.h"
 
 
 ads124S08Control_t externalADC1, externalADC2;
@@ -22,102 +23,79 @@ const uint8_t adcMuxStates[] = {
 	ADS_P_AIN10 + ADS_N_AIN11
 };
 
-uint8_t InitDevice(){
-    uint8_t retVal = UCR_OK;
-	externalADC1.registers[ID_ADDR_MASK] = 0x08;
-	externalADC1.registers[STATUS_ADDR_MASK] = 0x80;
-	externalADC1.registers[INPMUX_ADDR_MASK]= 0x01;
-	externalADC1.registers[PGA_ADDR_MASK] = 0x00;
-	externalADC1.registers[DATARATE_ADDR_MASK] = 0x14;
-	externalADC1.registers[REF_ADDR_MASK] = 0x10;
-	externalADC1.registers[IDACMAG_ADDR_MASK] = 0x00;
-	externalADC1.registers[IDACMUX_ADDR_MASK] = 0xFF;
-	externalADC1.registers[VBIAS_ADDR_MASK] = 0x00;
-	externalADC1.registers[SYS_ADDR_MASK] = 0x10;
-	externalADC1.registers[OFCAL0_ADDR_MASK] = 0x00;
-	externalADC1.registers[OFCAL1_ADDR_MASK] = 0x00;
-	externalADC1.registers[OFCAL2_ADDR_MASK] = 0x00;
-	externalADC1.registers[FSCAL0_ADDR_MASK] = 0x00;
-	externalADC1.registers[FSCAL1_ADDR_MASK] = 0x00;
-	externalADC1.registers[FSCAL2_ADDR_MASK] = 0x40;
-	externalADC1.registers[GPIODAT_ADDR_MASK] = 0x00;
-	externalADC1.registers[GPIOCON_ADDR_MASK] = 0x00;
+const uint8_t registerStates[] = {
+    0x00
 
-    externalADC1.csPinPort = CS1_GPIO_Port;
-    externalADC1.csPin = CS1_Pin;
-    externalADC1.startSyncPinPort = STARTSYNC_1_GPIO_Port;
-    externalADC1.startSyncPin = STARTSYNC_1_Pin;
-    externalADC1.resetPinPort = RESET1_GPIO_Port;
-    externalADC1.resetPin = RESET1_Pin;
-    externalADC1.drdyPinPort = DRDY1_GPIO_Port;
-    externalADC1.drdyPin = DRDY1_Pin;
+};
+
+bool StartUpRoutine(ads124S08Control_t* device){
+    uint8_t initRegisterMap[NUM_REGISTERS] = {0};
+    uint8_t status, i;
+
+    // Delay for power supply settling
+    HAL_Delay(10);
+
+    // Toggle nReset pin to reset registers
+    ToggleReset(device);
+
+    // Delay for post reset
+    HAL_Delay(10);
+
+    // Check if device is ready
+    status = ReadRegister(device, REG_ADDR_STATUS);
+    if(status & ADS_nRDY_MASK){
+        return false;
+    }
+
+    // 
+    RestoreRegisterDefaults(device);
+
+    // Clear Power on Reset flag
+    WriteRegister(device, REG_ADDR_STATUS, 0x00);
+
+
+
     
-	externalADC2.registers[ID_ADDR_MASK] = 0x08;
-	externalADC2.registers[STATUS_ADDR_MASK] = 0x80;
-	externalADC2.registers[INPMUX_ADDR_MASK]= 0x01;
-	externalADC2.registers[PGA_ADDR_MASK] = 0x00;
-	externalADC2.registers[DATARATE_ADDR_MASK] = 0x14;
-	externalADC2.registers[REF_ADDR_MASK] = 0x10;
-	externalADC2.registers[IDACMAG_ADDR_MASK] = 0x00;
-	externalADC2.registers[IDACMUX_ADDR_MASK] = 0xFF;
-	externalADC2.registers[VBIAS_ADDR_MASK] = 0x00;
-	externalADC2.registers[SYS_ADDR_MASK] = 0x10;
-	externalADC2.registers[OFCAL0_ADDR_MASK] = 0x00;
-	externalADC2.registers[OFCAL1_ADDR_MASK] = 0x00;
-	externalADC2.registers[OFCAL2_ADDR_MASK] = 0x00;
-	externalADC2.registers[FSCAL0_ADDR_MASK] = 0x00;
-	externalADC2.registers[FSCAL1_ADDR_MASK] = 0x00;
-	externalADC2.registers[FSCAL2_ADDR_MASK] = 0x40;
-	externalADC2.registers[GPIODAT_ADDR_MASK] = 0x00;
-	externalADC2.registers[GPIOCON_ADDR_MASK] = 0x00;
+    return status;
+}
 
-    externalADC2.csPinPort = CS2_GPIO_Port;
-    externalADC2.csPin = CS2_Pin;
-    externalADC2.startSyncPinPort = STARTSYNC_2_GPIO_Port;
-    externalADC2.startSyncPin = STARTSYNC_2_Pin;
-    externalADC2.resetPinPort = RESET2_GPIO_Port;
-    externalADC2.resetPin = RESET2_Pin;
-    externalADC2.drdyPinPort = DRDY2_GPIO_Port;
-    externalADC2.drdyPin = DRDY2_Pin;
-    return retVal;
+void ToggleReset(ads124S08Control_t* device){
+    HAL_GPIO_WritePin(device->resetPinPort, device->resetPin, RESET);
+    HAL_Delay(ADS_RESET_TIME);
+    HAL_GPIO_WritePin(device->resetPinPort, device->resetPin, SET);
 }
 
 uint8_t ReadRegister(
     ads124S08Control_t* device,
-    uint16_t registerNum
+    uint16_t address
 ){
-	uint8_t txData[2];
-	uint8_t rxData;
-
-	txData[0] = REGRD_OPCODE_MASK + (registerNum & 0x1f);
-	txData[1] = 0x00;
-
+	uint8_t txData[COMMAND_LENGTH + 1] = { OPCODE_RREG | (address & OPCODE_RWREG_MASK), 0, 0 };
+	uint8_t rxData[COMMAND_LENGTH + 1] = {0, 0, 0};
+	HAL_StatusTypeDef thing;
 	HAL_GPIO_WritePin(device->csPinPort, device->csPin, 0);
-	HAL_SPI_Transmit(&hspi4, txData, 2, 500);
-	HAL_SPI_Receive(&hspi4, &rxData, 1, 500);
+	thing = HAL_SPI_TransmitReceive(&hspi4, txData, rxData, COMMAND_LENGTH + 1, 500);
 	HAL_GPIO_WritePin(device->csPinPort, device->csPin, 1);
-	device->registers[registerNum] = rxData;
-    return rxData;
+	device->registers[address] = rxData[COMMAND_LENGTH];
+    return rxData[COMMAND_LENGTH];
 }
 
-uint8_t ReadRegisters(
+uint8_t ReadMultipleRegisters(
     ads124S08Control_t* device,
-    uint16_t registerNum,
+    uint16_t startAddress,
     uint16_t readCount
 ){
     uint8_t retVal = UCR_OK;
-    uint8_t txData[2];
-    uint8_t rxData[readCount];
+    uint8_t txData[COMMAND_LENGTH + NUM_REGISTERS] = {0};
+    uint8_t rxData[COMMAND_LENGTH + NUM_REGISTERS] = {0};
 
-    txData[0] = REGRD_OPCODE_MASK + (registerNum & 0x1f);
+    txData[0] = OPCODE_RREG | (startAddress & OPCODE_RWREG_MASK);
     txData[1] = readCount - 1;
 
     HAL_GPIO_WritePin(device->csPinPort, device->csPin, 0);
-    HAL_SPI_Transmit(&hspi4, txData, 2, 500);
-    HAL_SPI_Receive(&hspi4, rxData, readCount, 500);
+    HAL_SPI_TransmitReceive(&hspi4, txData, rxData, COMMAND_LENGTH + 1, 500);
     HAL_GPIO_WritePin(device->csPinPort, device->csPin, 1);
-    for(int i = registerNum; i < registerNum + readCount; i ++){
-        device->registers[i] = rxData[i - registerNum];
+    for(int i = 0; i < readCount; i ++){
+        device->registers[i + startAddress] = rxData[COMMAND_LENGTH + i];
     }
     return retVal;
 }
@@ -125,40 +103,40 @@ uint8_t ReadRegisters(
 
 uint8_t WriteRegister(
 	ads124S08Control_t* device,
-	uint16_t registerNum,
+	uint16_t address,
 	uint8_t data
 ){
 	uint8_t retVal = UCR_OK;
-    uint8_t txData[3];
+	uint8_t txData[COMMAND_LENGTH + 1] = { OPCODE_WREG | (address & OPCODE_RWREG_MASK), 0, data};
+	uint8_t rxData[COMMAND_LENGTH + 1] = {0, 0, 0};
 
-    txData[0] = REGWR_OPCODE_MASK + (registerNum & 0x1f);
-    txData[1] = 0x00;
-    txData[2] = data;
-
-    HAL_GPIO_WritePin(device->csPinPort, device->csPin, 0);
-    HAL_SPI_Transmit(&hspi4, txData, 3, 500);
-    HAL_GPIO_WritePin(device->csPinPort, device->csPin, 1);
+	HAL_GPIO_WritePin(device->csPinPort, device->csPin, 0);
+	HAL_SPI_TransmitReceive(&hspi4, txData, rxData, COMMAND_LENGTH + 1, 500);
+	HAL_GPIO_WritePin(device->csPinPort, device->csPin, 1);
+	device->registers[address] = txData[COMMAND_LENGTH];
 	return retVal;
 }
 
-uint8_t WriteRegisters(
+uint8_t WriteMultipleRegisters(
     ads124S08Control_t* device,
-    uint16_t registerNum,
+    uint16_t startAddress,
     uint16_t writeCount,
     uint8_t* data
 ){
     uint8_t retVal = UCR_OK;
-    uint8_t txData[writeCount + 2];
+    uint8_t txData[COMMAND_LENGTH + NUM_REGISTERS] = { 0 };
+    uint8_t rxData[COMMAND_LENGTH + NUM_REGISTERS] = { 0 };
+    uint8_t j = 0;
 
-    txData[0] = REGWR_OPCODE_MASK + (registerNum & 0x1f);
-    txData[1] = 0x00;
-    for(int i = 2; i < writeCount; i ++){
-        txData[i] = *data;
-        ++data;
+    txData[0] = OPCODE_WREG | (startAddress & OPCODE_RWREG_MASK);
+    txData[1] = writeCount - 1;
+    for(int i = startAddress; i < startAddress + writeCount; i ++){
+        txData[COMMAND_LENGTH + j++] = data[i];
+        device->registers[i] = data[i];
     }
 
     HAL_GPIO_WritePin(device->csPinPort, device->csPin, 0);
-    HAL_SPI_Transmit(&hspi4, txData, 3, 500);
+    HAL_SPI_TransmitReceive(&hspi4, txData, rxData, COMMAND_LENGTH + writeCount, 500);
     HAL_GPIO_WritePin(device->csPinPort, device->csPin, 1);
     return retVal;
 }
@@ -169,28 +147,128 @@ uint8_t SendCommand(
 ){
 	uint8_t retVal = UCR_OK;
 	HAL_GPIO_WritePin(device->csPinPort, device->csPin, 0);
-    HAL_SPI_Transmit(&hspi4, &command, 3, 500);
+    HAL_SPI_Transmit(&hspi4, &command, 1, 500);
     HAL_GPIO_WritePin(device->csPinPort, device->csPin, 1);
 	return retVal;
 }
 
-void readWriteData(
-	ads124S08Control_t* device,
-	uint8_t* 
-){
+//void readWriteData(
+//	ads124S08Control_t* device,
+//	uint8_t*
+//){
+//
+//}
 
+uint32_t ReadADCData(
+	ads124S08Control_t* device,
+	uint8_t* deviceStatus,
+	uint8_t mode
+){
+    uint8_t txData[RDATA_COMMAND_LENGTH + STATUS_LENGTH + DATA_LENGTH + CRC_LENGTH] = {0};
+    uint8_t rxData[RDATA_COMMAND_LENGTH + STATUS_LENGTH + DATA_LENGTH + CRC_LENGTH] = {0};
+    uint8_t byteLength;
+    uint8_t dataPosition;
+    uint8_t byteOptions;
+    uint8_t data[5];
+    bool statusByteEnabled = false;
+    int32_t signByte, upperByte, middleByte, lowerByte;
+
+    byteOptions = (device->registers[REG_ADDR_SYS] & ADS_SENDSTATUS_MASK << 1) 
+                    | (device->registers[REG_ADDR_SYS] & ADS_CRC_MASK);
+
+    switch(byteOptions){
+        case 0:
+            byteLength = DATA_LENGTH;
+            dataPosition = 0;
+            break;
+        case 1: 
+            byteLength = DATA_LENGTH + CRC_LENGTH;
+            dataPosition = 0;
+            break;
+        case 2:
+            byteLength = STATUS_LENGTH + DATA_LENGTH;
+            dataPosition = 1;
+            statusByteEnabled = true;
+            break;
+        case 3:
+            byteLength = STATUS_LENGTH + DATA_LENGTH + CRC_LENGTH;
+            dataPosition = 1;
+            statusByteEnabled = true;
+            break;
+    }
+    if(mode == COMMAND){
+        txData[0] = OPCODE_RDATA;
+        byteLength += 1;
+        dataPosition += 1;
+    }
+    HAL_GPIO_WritePin(device->csPinPort, device->csPin, RESET);
+    HAL_SPI_TransmitReceive(&hspi4, txData, rxData, byteLength, 500);
+    HAL_GPIO_WritePin(device->csPinPort, device->csPin, SET);
+
+    if(statusByteEnabled && deviceStatus){
+        deviceStatus[0] = rxData[dataPosition - 1];
+    }
+
+    if (rxData[dataPosition] & 0x80u ) {
+    	signByte = 0xFF000000; 
+    } else { 
+    	signByte = 0x00000000; 
+    }
+
+    if(device->registers[REG_ADDR_SYS] & ADS_CRC_MASK){
+        if(device->registers[REG_ADDR_SYS] & ADS_SENDSTATUS_MASK){
+            data[0] = rxData[dataPosition - 1];
+            data[1] = rxData[dataPosition];
+            data[2] = rxData[dataPosition + 1];
+            data[3] = rxData[dataPosition + 2];
+            data[4] = rxData[dataPosition + 3];
+
+            bool error = (bool) getCRC(data, 5, CRC_INITIAL_SEED);
+            if ( error ) {
+                // if error, report and handle the error
+                while (1);
+            }
+        }else{
+            data[0] = rxData[dataPosition];
+            data[1] = rxData[dataPosition + 1];
+            data[2] = rxData[dataPosition + 2];
+            data[3] = rxData[dataPosition + 3];
+            bool error = (bool) getCRC(data, 4, CRC_INITIAL_SEED);
+
+            if(error){
+                while(1);
+            }
+        }
+    }
+    upperByte = ((uint32_t) rxData[dataPosition] & 0xFF) << 16;
+    middleByte = ((uint32_t) rxData[dataPosition + 1] & 0xFF) << 8;
+    lowerByte = ((uint32_t) rxData[dataPosition + 2] & 0xFF);
+
+	return (signByte + upperByte + middleByte + lowerByte);
 }
 
-uint32_t readData(
-	ads124S08Control_t* device,
-	uint32_t* deviceStatus,
-	uint32_t* deviceData,
-	uint32_t* deviceCRC
+void RestoreRegisterDefaults(
+    ads124S08Control_t* device
 ){
-    HAL_GPIO_WritePin(device->csPinPort, device->csPin, 0);
-//    HAL_SPI_Transmit(&hspi4, &command, 3, 500);
-
-	return 0;
+	/* Default register settings */
+    device->registers[REG_ADDR_ID]       = ID_DEFAULT;
+	device->registers[REG_ADDR_STATUS]   = STATUS_DEFAULT;
+	device->registers[REG_ADDR_INPMUX]   = INPMUX_DEFAULT;
+	device->registers[REG_ADDR_PGA]      = PGA_DEFAULT;
+	device->registers[REG_ADDR_DATARATE] = DATARATE_DEFAULT;
+	device->registers[REG_ADDR_REF]      = REF_DEFAULT;
+	device->registers[REG_ADDR_IDACMAG]  = IDACMAG_DEFAULT;
+	device->registers[REG_ADDR_IDACMUX]  = IDACMUX_DEFAULT;
+	device->registers[REG_ADDR_VBIAS]    = VBIAS_DEFAULT;
+	device->registers[REG_ADDR_SYS]      = SYS_DEFAULT;
+	device->registers[REG_ADDR_OFCAL0]   = OFCAL0_DEFAULT;
+	device->registers[REG_ADDR_OFCAL1]   = OFCAL1_DEFAULT;
+	device->registers[REG_ADDR_OFCAL2]   = OFCAL2_DEFAULT;
+	device->registers[REG_ADDR_FSCAL0]   = FSCAL0_DEFAULT;
+	device->registers[REG_ADDR_FSCAL1]   = FSCAL1_DEFAULT;
+	device->registers[REG_ADDR_FSCAL2]   = FSCAL2_DEFAULT;
+	device->registers[REG_ADDR_GPIODAT]  = GPIODAT_DEFAULT;
+	device->registers[REG_ADDR_GPIOCON]  = GPIOCON_DEFAULT;
 }
 
 void HAL_SPI_TxRxCpltCallback(

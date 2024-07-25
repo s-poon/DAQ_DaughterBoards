@@ -25,7 +25,6 @@
 /* USER CODE END 0 */
 
 SPI_HandleTypeDef hspi4;
-DMA_HandleTypeDef hdma_spi4_rx;
 
 /* SPI4 init function */
 void MX_SPI4_Init(void)
@@ -87,24 +86,6 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* spiHandle)
     GPIO_InitStruct.Alternate = GPIO_AF5_SPI4;
     HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-    /* SPI4 DMA Init */
-    /* SPI4_RX Init */
-    hdma_spi4_rx.Instance = DMA1_Channel4;
-    hdma_spi4_rx.Init.Request = DMA_REQUEST_SPI4_RX;
-    hdma_spi4_rx.Init.Direction = DMA_PERIPH_TO_MEMORY;
-    hdma_spi4_rx.Init.PeriphInc = DMA_PINC_DISABLE;
-    hdma_spi4_rx.Init.MemInc = DMA_MINC_ENABLE;
-    hdma_spi4_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
-    hdma_spi4_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
-    hdma_spi4_rx.Init.Mode = DMA_NORMAL;
-    hdma_spi4_rx.Init.Priority = DMA_PRIORITY_LOW;
-    if (HAL_DMA_Init(&hdma_spi4_rx) != HAL_OK)
-    {
-      Error_Handler();
-    }
-
-    __HAL_LINKDMA(spiHandle,hdmarx,hdma_spi4_rx);
-
     /* SPI4 interrupt Init */
     HAL_NVIC_SetPriority(SPI4_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(SPI4_IRQn);
@@ -131,9 +112,6 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef* spiHandle)
     PE14     ------> SPI4_MOSI
     */
     HAL_GPIO_DeInit(GPIOE, GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14);
-
-    /* SPI4 DMA DeInit */
-    HAL_DMA_DeInit(spiHandle->hdmarx);
 
     /* SPI4 interrupt Deinit */
     HAL_NVIC_DisableIRQ(SPI4_IRQn);
