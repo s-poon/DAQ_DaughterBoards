@@ -159,7 +159,7 @@ uint8_t SendCommand(
 //
 //}
 
-uint32_t ReadADCData(
+int32_t ReadADCData(
 	ads124S08Control_t* device,
 	uint8_t* deviceStatus,
 	uint8_t mode
@@ -198,8 +198,8 @@ uint32_t ReadADCData(
     }
     if(mode == COMMAND){
         txData[0] = OPCODE_RDATA;
-        byteLength += 1;
-        dataPosition += 1;
+        byteLength ++;
+        dataPosition ++;
     }
     HAL_GPIO_WritePin(device->csPinPort, device->csPin, RESET);
     HAL_SPI_TransmitReceive(&hspi4, txData, rxData, byteLength, 500);

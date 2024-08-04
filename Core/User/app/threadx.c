@@ -35,6 +35,7 @@ TX_SEMAPHORE semaphoreExADC2;
 TX_SEMAPHORE semaphoreSPI;
 
 uint8_t analogRxData[16];
+int32_t stuff;
 
 static const uint8_t analogSwitchStates[NUM_ADC_CHANNELS] = {
 	SET_12V,
@@ -285,10 +286,10 @@ void txCAN100HzThreadEntry(
 void txADS1ThreadInput(
     ULONG threadInput
 ){
-    uint8_t rxData[3];
-    uint8_t inputSet = 0;
-    uint8_t canTxData[20];
-    uint64_t combinedData[6];
+//    uint8_t rxData[3];
+//    uint8_t inputSet = 0;
+//    uint8_t canTxData[20];
+//    uint64_t combinedData[6];
     externalADC1.csPinPort = CS1_GPIO_Port;
     externalADC1.csPin = CS1_Pin;
     externalADC1.startSyncPinPort = STARTSYNC_1_GPIO_Port;
@@ -300,8 +301,10 @@ void txADS1ThreadInput(
 
     HAL_GPIO_WritePin(CS1_GPIO_Port, CS1_Pin, SET);
     HAL_GPIO_WritePin(CS2_GPIO_Port, CS2_Pin, SET);
+    HAL_GPIO_WritePin(STARTSYNC_1_GPIO_Port, STARTSYNC_1_Pin, RESET);
+    HAL_GPIO_WritePin(STARTSYNC_2_GPIO_Port, STARTSYNC_2_Pin, RESET);
     // Delay to allow power supplies to settle
-    HAL_Delay(5);
+    tx_thread_sleep(5);
 
     // Set up registers
     StartUpRoutine(&externalADC1);
@@ -309,15 +312,22 @@ void txADS1ThreadInput(
 //    WriteRegister(&externalADC1, STATUS_ADDR_MASK, data);
 //
 //    // Set the PGA
-    uint8_t data = ADS_DELAY_14 + ADS_PGA_ENABLED + ADS_GAIN_1;
-    WriteRegister(&externalADC1, PGA_ADDR_MASK, data);
+    uint8_t data = ADS_DELAY_14 + ADS_PGA_ENABLED + ADS_GAIN_128;
+    WriteRegister(&externalADC1, REG_ADDR_PGA, data);
 //
 //    // Use single shot conversions
-    data = ADS_CONVMODE_SS + ADS_DR_4000;
-    WriteRegister(&externalADC1, DATARATE_ADDR_MASK, data);
+    data = ADS_CONVMODE_SS + ADS_DR_4000 + ADS_FILTERTYPE_LL;
+    WriteRegister(&externalADC1, REG_ADDR_DATARATE, data);
+
+    data = ADS_REFP_BYP_DISABLE + ADS_REFN_BYP_DISABLE + ADS_REFSEL_INT + ADS_REFINT_ON_PDWN;
+    WriteRegister(&externalADC1, REG_ADDR_REF, data);
+
+    data = ADS_P_AIN2 + ADS_N_AIN3;
+    WriteRegister(&externalADC1, REG_ADDR_INPMUX, data);
+
 //
 //    // Start Conversions
-//    SendCommand(&externalADC1, START_OPCODE_MASK);
+//    SendCommand(&externalADC1, OPC
 //    uint8_t txData[3] = {
 //        REGWR_OPCODE_MASK + INPMUX_ADDR_MASK,
 //        0x00,
@@ -336,7 +346,12 @@ void txADS1ThreadInput(
 //        .MessageMarker = 0
 //    };
 //    uint32_t thing = 0;
+    uint8_t thing[1] = {0};
+
     while(1){
+        SendCommand(&externalADC1, OPCODE_START);
+        tx_thread_sleep(5);
+        stuff = ReadADCData(&externalADC1, thing, COMMAND);
         // Wait for conversion to finish
 //        tx_semaphore_get(&semaphoreExADC1, TX_WAIT_FOREVER);
         // Start send receive
@@ -379,7 +394,7 @@ void txADS1ThreadInput(
 ////        ucr_01_front_strain_gauges1_pack(canTxData, &stuff, UCR_01_FRONT_STRAIN_GAUGES1_LENGTH);
 ////        HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &exADC1Header, canTxData);
 //        }
-        tx_thread_sleep(100);
+        tx_thread_sleep(250);
     }
 }
 

@@ -537,10 +537,14 @@ uint8_t SendCommand(
 	uint8_t command
 );
 
-uint32_t ReadADCData(
+int32_t ReadADCData(
 	ads124S08Control_t* device,
 	uint8_t* deviceStatus,
 	uint8_t mode
+);
+
+void RestoreRegisterDefaults(
+    ads124S08Control_t* device
 );
 
 extern ads124S08Control_t externalADC1, externalADC2;
