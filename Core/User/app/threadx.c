@@ -350,8 +350,11 @@ void txADS1ThreadInput(
 
     while(1){
         SendCommand(&externalADC1, OPCODE_START);
-        tx_thread_sleep(5);
+        tx_semaphore_get(&semaphoreExADC1, TX_WAIT_FOREVER);
         stuff = ReadADCData(&externalADC1, thing, COMMAND);
+        for(int i = 0; i < 6; i ++){
+            WriteRegister(&externalADC1, ADC_MUX)
+        }
         // Wait for conversion to finish
 //        tx_semaphore_get(&semaphoreExADC1, TX_WAIT_FOREVER);
         // Start send receive
