@@ -39,11 +39,11 @@ int32_t stuff;
 
 static const uint8_t analogSwitchStates[NUM_ADC_CHANNELS] = {
 	SET_12V,
+	SET_5V,
 	SET_12V,
 	SET_12V,
 	SET_12V,
-	SET_12V,
-	SET_12V,
+	SET_5V,
 	SET_12V,
 	SET_12V
 };
@@ -112,16 +112,16 @@ UINT ThreadX_Init(
 		return TX_THREAD_ERROR;
 	}
 
-    if(tx_byte_allocate(bytePool, (VOID**) &pointer, TX_APP_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS){
-        return TX_POOL_ERROR;
-    }
+//    if(tx_byte_allocate(bytePool, (VOID**) &pointer, TX_APP_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS){
+//        return TX_POOL_ERROR;
+//    }
 
-	if(tx_thread_create(&txStrainThread, "txStrainThread", txADS1ThreadInput, 0, pointer,
-                       TX_APP_STACK_SIZE, 15, TX_APP_THREAD_PREEMPTION_THRESHOLD,
-                       TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS
-    ){
-        return TX_THREAD_ERROR;
-    }
+//	if(tx_thread_create(&txStrainThread, "txStrainThread", txADS1ThreadInput, 0, pointer,
+//                       TX_APP_STACK_SIZE, 15, TX_APP_THREAD_PREEMPTION_THRESHOLD,
+//                       TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS
+//    ){
+//        return TX_THREAD_ERROR;
+//    }
 
 	tx_semaphore_create(&semaphoreAnalog, "semaphoreAnalog", 0);
 	tx_semaphore_create(&semaphoreAero, "semaphoreAero", 0);
@@ -349,12 +349,12 @@ void txADS1ThreadInput(
     uint8_t thing[1] = {0};
 
     while(1){
-        SendCommand(&externalADC1, OPCODE_START);
-        tx_semaphore_get(&semaphoreExADC1, TX_WAIT_FOREVER);
-        stuff = ReadADCData(&externalADC1, thing, COMMAND);
-        for(int i = 0; i < 6; i ++){
-            WriteRegister(&externalADC1, ADC_MUX)
-        }
+//        SendCommand(&externalADC1, OPCODE_START);
+//        tx_semaphore_get(&semaphoreExADC1, TX_WAIT_FOREVER);
+//        stuff = ReadADCData(&externalADC1, thing, COMMAND);
+//        for(int i = 0; i < 6; i ++){
+//            WriteRegister(&externalADC1, ADC_MUX)
+//        }
         // Wait for conversion to finish
 //        tx_semaphore_get(&semaphoreExADC1, TX_WAIT_FOREVER);
         // Start send receive

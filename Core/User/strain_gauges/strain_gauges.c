@@ -282,6 +282,3 @@ void HAL_SPI_TxRxCpltCallback(
         HAL_GPIO_WritePin(externalADC2.csPinPort, externalADC2.csPin, 1);
     }
 }
-
-
-
