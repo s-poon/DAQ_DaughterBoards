@@ -1,4 +1,4 @@
-../Core/User/app/threadx.c:52:6:ThreadX_Init	11
+../Core/User/app/threadx.c:52:6:ThreadX_Init	8
 ../Core/User/app/threadx.c:138:6:txMainThreadEntry	1
 ../Core/User/app/threadx.c:155:6:txAnalogThreadEntry	1
 ../Core/User/app/threadx.c:190:6:txAeroThreadEntry	3

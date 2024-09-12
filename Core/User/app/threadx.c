@@ -38,12 +38,12 @@ uint8_t analogRxData[16];
 int32_t stuff;
 
 static const uint8_t analogSwitchStates[NUM_ADC_CHANNELS] = {
-	SET_12V,
+	SET_5V,
 	SET_5V,
 	SET_12V,
 	SET_12V,
 	SET_12V,
-	SET_5V,
+	SET_12V,
 	SET_12V,
 	SET_12V
 };
@@ -83,23 +83,23 @@ UINT ThreadX_Init(
         return TX_POOL_ERROR;
     }
 
-	if(tx_thread_create(&txAeroThread, "txAeroThread", txAeroThreadEntry, 0, pointer,
-					   TX_APP_STACK_SIZE, 12, TX_APP_THREAD_PREEMPTION_THRESHOLD,
-					   TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS
-    ){
-		return TX_THREAD_ERROR;
-	}
+//	if(tx_thread_create(&txAeroThread, "txAeroThread", txAeroThreadEntry, 0, pointer,
+//					   TX_APP_STACK_SIZE, 12, TX_APP_THREAD_PREEMPTION_THRESHOLD,
+//					   TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS
+//    ){
+//		return TX_THREAD_ERROR;
+//	}
 
-    if(tx_byte_allocate(bytePool, (VOID**) &pointer, TX_APP_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS){
-        return TX_POOL_ERROR;
-    }
-
-	if(tx_thread_create(&txCAN500HzThread, "txCAN500Hz", txCAN500HzThreadEntry, 0, pointer,
-					   TX_APP_STACK_SIZE, 13, TX_APP_THREAD_PREEMPTION_THRESHOLD,
-					   TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS
-    ){
-		return TX_THREAD_ERROR;
-	}
+//    if(tx_byte_allocate(bytePool, (VOID**) &pointer, TX_APP_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS){
+//        return TX_POOL_ERROR;
+//    }
+//
+//	if(tx_thread_create(&txCAN500HzThread, "txCAN500Hz", txCAN500HzThreadEntry, 0, pointer,
+//					   TX_APP_STACK_SIZE, 13, TX_APP_THREAD_PREEMPTION_THRESHOLD,
+//					   TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS
+//    ){
+//		return TX_THREAD_ERROR;
+//	}
 
     if(tx_byte_allocate(bytePool, (VOID**) &pointer, TX_APP_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS){
         return TX_POOL_ERROR;
