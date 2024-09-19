@@ -315,7 +315,7 @@ void txADS1ThreadInput(
     uint8_t data = ADS_DELAY_14 + ADS_PGA_ENABLED + ADS_GAIN_128;
     WriteRegister(&externalADC1, REG_ADDR_PGA, data);
 //
-//    // Use single shot conversions
+//    // Use single shot conversions/
     data = ADS_CONVMODE_SS + ADS_DR_4000 + ADS_FILTERTYPE_LL;
     WriteRegister(&externalADC1, REG_ADDR_DATARATE, data);
 
