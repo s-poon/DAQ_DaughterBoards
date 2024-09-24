@@ -44,7 +44,7 @@ static const uint8_t analogSwitchStates[NUM_ADC_CHANNELS] = {
 	SET_12V,
 	SET_12V,
 	SET_12V,
-	SET_12V,
+	SET_5V,
 	SET_12V
 };
 
