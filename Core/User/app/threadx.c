@@ -299,6 +299,15 @@ void txADS1ThreadInput(
     externalADC1.drdyPinPort = DRDY1_GPIO_Port;
     externalADC1.drdyPin = DRDY1_Pin;
 
+    externalADC2.csPinPort = CS2_GPIO_Port;
+    externalADC2.csPin = CS2_Pin;
+    externalADC2.startSyncPinPort = STARTSYNC_2_GPIO_Port;
+    externalADC2.startSyncPin = STARTSYNC_2_Pin;
+    externalADC2.resetPinPort = RESET2_GPIO_Port;
+    externalADC2.resetPin = RESET2_Pin;
+    externalADC2.drdyPinPort = DRDY2_GPIO_Port;
+    externalADC2.drdyPin = DRDY2_Pin;
+
     HAL_GPIO_WritePin(CS1_GPIO_Port, CS1_Pin, SET);
     HAL_GPIO_WritePin(CS2_GPIO_Port, CS2_Pin, SET);
     HAL_GPIO_WritePin(STARTSYNC_1_GPIO_Port, STARTSYNC_1_Pin, RESET);
@@ -308,22 +317,27 @@ void txADS1ThreadInput(
 
     // Set up registers
     StartUpRoutine(&externalADC1);
+    StartUpRoutine(&externalADC2);
 
 //    WriteRegister(&externalADC1, STATUS_ADDR_MASK, data);
 //
 //    // Set the PGA
     uint8_t data = ADS_DELAY_14 + ADS_PGA_ENABLED + ADS_GAIN_64;
     WriteRegister(&externalADC1, REG_ADDR_PGA, data);
+    WriteRegister(&externalADC2, REG_ADDR_PGA, data);
 //
 //    // Use single shot conversions/
     data = ADS_CONVMODE_SS + ADS_DR_4000 + ADS_FILTERTYPE_LL;
     WriteRegister(&externalADC1, REG_ADDR_DATARATE, data);
+    WriteRegister(&externalADC2, REG_ADDR_DATARATE, data);
 
     data = ADS_REFP_BYP_DISABLE + ADS_REFN_BYP_DISABLE + ADS_REFSEL_INT + ADS_REFINT_ON_PDWN;
     WriteRegister(&externalADC1, REG_ADDR_REF, data);
+    WriteRegister(&externalADC2, REG_ADDR_REF, data);
 
-    data = ADS_P_AIN2 + ADS_N_AIN3;
+    data = ADS_P_AIN0 + ADS_N_AIN1;
     WriteRegister(&externalADC1, REG_ADDR_INPMUX, data);
+    WriteRegister(&externalADC2, REG_ADDR_INPMUX, data);
 
 //
 //    // Start Conversions
@@ -334,25 +348,40 @@ void txADS1ThreadInput(
 //        adcMuxStates[inputSet]
 //    };
 //    uint32_t combinedData[6];
-//    FDCAN_TxHeaderTypeDef exADC1Header = {
-//        .Identifier = UCR_01_FRONT_STRAIN_GAUGES1_FRAME_ID,
-//        .IdType = FDCAN_STANDARD_ID,
-//        .TxFrameType = FDCAN_DATA_FRAME,
-//        .DataLength = FDCAN_DLC_BYTES_20,
-//        .ErrorStateIndicator = FDCAN_ESI_ACTIVE,
-//        .BitRateSwitch = FDCAN_BRS_ON,
-//        .FDFormat = FDCAN_FD_CAN,
-//        .TxEventFifoControl = FDCAN_NO_TX_EVENTS,
-//        .MessageMarker = 0
-//    };
+   FDCAN_TxHeaderTypeDef exADC1Header = {
+       .Identifier = UCR_01_FRONT_STRAIN_GAUGES1_FRAME_ID,
+       .IdType = FDCAN_STANDARD_ID,
+       .TxFrameType = FDCAN_DATA_FRAME,
+       .DataLength = FDCAN_DLC_BYTES_20,
+       .ErrorStateIndicator = FDCAN_ESI_ACTIVE,
+       .BitRateSwitch = FDCAN_BRS_ON,
+       .FDFormat = FDCAN_FD_CAN,
+       .TxEventFifoControl = FDCAN_NO_TX_EVENTS,
+       .MessageMarker = 0
+   };
+
+   FDCAN_TxHeaderTypeDef exADC2Header = {
+       .Identifier = UCR_01_FRONT_STRAIN_GAUGES2_FRAME_ID,
+       .IdType = FDCAN_STANDARD_ID,
+       .TxFrameType = FDCAN_DATA_FRAME,
+       .DataLength = FDCAN_DLC_BYTES_20,
+       .ErrorStateIndicator = FDCAN_ESI_ACTIVE,
+       .BitRateSwitch = FDCAN_BRS_ON,
+       .FDFormat = FDCAN_FD_CAN,
+       .TxEventFifoControl = FDCAN_NO_TX_EVENTS,
+       .MessageMarker = 0
+   };
 //    uint32_t thing = 0;
     uint8_t thing[1] = {0};
 
     while(1){
         SendCommand(&externalADC1, OPCODE_START);
-        tx_thread_sleep(2);
+        SendCommand(&externalADC2, OPCODE_START);
+        tx_thread_sleep(1);
 //        tx_semaphore_get(&semaphoreExADC1, TX_WAIT_FOREVER);
-        stuff = ReadADCData(&externalADC1, thing, COMMAND);
+        // for(int i = 0; i < 6; i ++){
+
+        // }
 //        for(int i = 0; i < 6; i ++){
 //            WriteRegister(&externalADC1, ADC_MUX)
 //        }
