@@ -5,13 +5,16 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
-../Core/vendor_generated/can_tools/can.c 
+../Core/vendor_generated/can_tools/ucr_01.c \
+../Core/vendor_generated/can_tools/ucr_01_no_fd.c 
 
 OBJS += \
-./Core/vendor_generated/can_tools/can.o 
+./Core/vendor_generated/can_tools/ucr_01.o \
+./Core/vendor_generated/can_tools/ucr_01_no_fd.o 
 
 C_DEPS += \
-./Core/vendor_generated/can_tools/can.d 
+./Core/vendor_generated/can_tools/ucr_01.d \
+./Core/vendor_generated/can_tools/ucr_01_no_fd.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
@@ -21,7 +24,7 @@ Core/vendor_generated/can_tools/%.o Core/vendor_generated/can_tools/%.su Core/ve
 clean: clean-Core-2f-vendor_generated-2f-can_tools
 
 clean-Core-2f-vendor_generated-2f-can_tools:
-	-$(RM) ./Core/vendor_generated/can_tools/can.cyclo ./Core/vendor_generated/can_tools/can.d ./Core/vendor_generated/can_tools/can.o ./Core/vendor_generated/can_tools/can.su
+	-$(RM) ./Core/vendor_generated/can_tools/ucr_01.cyclo ./Core/vendor_generated/can_tools/ucr_01.d ./Core/vendor_generated/can_tools/ucr_01.o ./Core/vendor_generated/can_tools/ucr_01.su ./Core/vendor_generated/can_tools/ucr_01_no_fd.cyclo ./Core/vendor_generated/can_tools/ucr_01_no_fd.d ./Core/vendor_generated/can_tools/ucr_01_no_fd.o ./Core/vendor_generated/can_tools/ucr_01_no_fd.su
 
 .PHONY: clean-Core-2f-vendor_generated-2f-can_tools
 

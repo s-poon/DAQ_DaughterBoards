@@ -10,11 +10,11 @@
 #include "aero_sensors.h"
 #include "frequency_sensors.h"
 #include "tim.h"
-#include "../../vendor_generated/can_tools/can.h"
 #include "strain_gauges.h"
 #include "spi.h"
 
 #include "../../vendor_generated/can_tools/can_api.h"
+#include "../../vendor_generated/can_tools/ucr_01.h"
 
 extern frequency_t ChannelData[4];
 extern aeroSensor_t AeroSensors[NUM_AERO_SENSORS];
@@ -153,12 +153,12 @@ void txMainThreadEntry(
 }
 
 void txAnalogThreadEntry(ULONG threadInput){
-    uint8_t analogRxData[ANALOG_DATA_LENGTH];
+    uint8_t analogRxData[UCR_01_FRONT_ANALOG1_LENGTH];
     uint32_t adcValues[NUM_ADC_CHANNELS];
     setAnalogSwitches(analogSwitchStates);
 
     FDCAN_TxHeaderTypeDef analogHeader = {
-            .Identifier = ANALOG_CANID,
+            .Identifier = UCR_01_FRONT_ANALOG1_FRAME_ID,
             .IdType = FDCAN_STANDARD_ID,
             .TxFrameType = FDCAN_DATA_FRAME,
             .DataLength = FDCAN_DLC_BYTES_16,
@@ -171,63 +171,70 @@ void txAnalogThreadEntry(ULONG threadInput){
     while(1){
         HAL_ADC_Start_DMA(&hadc4, adcValues, NUM_ADC_CHANNELS);
         tx_semaphore_get(&semaphoreAnalog, TX_WAIT_FOREVER);
-        struct analogData_t analogStruct = {
+        struct ucr_01_front_analog1_t analogStruct1 = {
             .analog1 = adcValues[0],
             .analog2 = adcValues[1],
             .analog3 = adcValues[2],
-            .analog4 = adcValues[3],
+            .analog4 = adcValues[3]
+        };
+        struct ucr_01_front_analog2_t analogStruct2 = {
             .analog5 = adcValues[4],
             .analog6 = adcValues[5],
             .analog7 = adcValues[6],
             .analog8 = adcValues[7]
         };
-        analogPack(analogRxData, &analogStruct, ANALOG_DATA_LENGTH);
+        analogHeader.Identifier = UCR_01_FRONT_ANALOG2_FRAME_ID;
+        ucr_01_front_analog1_pack(analogRxData, &analogStruct1, UCR_01_FRONT_ANALOG1_LENGTH);
         HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &analogHeader, analogRxData);
+        analogHeader.Identifier = UCR_01_FRONT_ANALOG2_FRAME_ID;
+        ucr_01_front_analog2_pack(analogRxData, &analogStruct2, UCR_01_FRONT_ANALOG2_LENGTH);
+        HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &analogHeader, analogRxData);
+
         tx_thread_sleep(4);
     }
 }
 
-void txAeroThreadEntry(
-   ULONG threadInput
-){
-    if(UCR_OK != AeroInit()){
-
-    }
-    struct aero_t aeroData;
-    uint8_t transmitData[AERO_DATA_LENGTH];
-    FDCAN_TxHeaderTypeDef aeroHeader = {
-        .Identifier = AERO_CANID,
-        .IdType = FDCAN_STANDARD_ID,
-        .TxFrameType = FDCAN_DATA_FRAME,
-        .DataLength = FDCAN_DLC_BYTES_16,
-        .ErrorStateIndicator = FDCAN_ESI_ACTIVE,
-        .BitRateSwitch = FDCAN_BRS_ON,
-        .FDFormat = FDCAN_FD_CAN,
-        .TxEventFifoControl = FDCAN_NO_TX_EVENTS,
-        .MessageMarker = 0
-    };
-
-    while(1){
-        for(int i = 0; i < NUM_AERO_SENSORS; i ++){
-            StartSensorReading(&AeroSensors[i]);
-        }
-        tx_thread_sleep(20);
-
-        for(int i = 0; i < NUM_AERO_SENSORS; i ++){
-            ReadData(&AeroSensors[i]);
-        }
-        aeroData.pressure1 = AeroSensors[0].pressure;
-        aeroData.pressure2 = AeroSensors[1].pressure;
-        aeroData.pressure3 = AeroSensors[2].pressure;
-
-        aeroData.temperature1 = AeroSensors[0].temperature;
-        aeroData.temperature2 = AeroSensors[1].temperature;
-        aeroData.temperature3 = AeroSensors[2].temperature;
-        aeroPack(transmitData, &aeroData, AERO_DATA_LENGTH);
-        tx_thread_sleep(80);
-        HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &aeroHeader, transmitData);
-    }
-}
+//void txAeroThreadEntry(
+//   ULONG threadInput
+//){
+//    if(UCR_OK != AeroInit()){
+//
+//    }
+//    struct aero_t aeroData;
+//    uint8_t transmitData[AERO_DATA_LENGTH];
+//    FDCAN_TxHeaderTypeDef aeroHeader = {
+//        .Identifier = AERO_CANID,
+//        .IdType = FDCAN_STANDARD_ID,
+//        .TxFrameType = FDCAN_DATA_FRAME,
+//        .DataLength = FDCAN_DLC_BYTES_16,
+//        .ErrorStateIndicator = FDCAN_ESI_ACTIVE,
+//        .BitRateSwitch = FDCAN_BRS_ON,
+//        .FDFormat = FDCAN_FD_CAN,
+//        .TxEventFifoControl = FDCAN_NO_TX_EVENTS,
+//        .MessageMarker = 0
+//    };
+//
+//    while(1){
+//        for(int i = 0; i < NUM_AERO_SENSORS; i ++){
+//            StartSensorReading(&AeroSensors[i]);
+//        }
+//        tx_thread_sleep(20);
+//
+//        for(int i = 0; i < NUM_AERO_SENSORS; i ++){
+//            ReadData(&AeroSensors[i]);
+//        }
+//        aeroData.pressure1 = AeroSensors[0].pressure;
+//        aeroData.pressure2 = AeroSensors[1].pressure;
+//        aeroData.pressure3 = AeroSensors[2].pressure;
+//
+//        aeroData.temperature1 = AeroSensors[0].temperature;
+//        aeroData.temperature2 = AeroSensors[1].temperature;
+//        aeroData.temperature3 = AeroSensors[2].temperature;
+//        aeroPack(transmitData, &aeroData, AERO_DATA_LENGTH);
+//        tx_thread_sleep(80);
+//        HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &aeroHeader, transmitData);
+//    }
+//}
 
 void txCAN500HzThreadEntry(ULONG threadInput){
 
@@ -245,9 +252,9 @@ void txCAN100HzThreadEntry(
 	uint8_t preScalar = htim2.Init.Prescaler + 1;
     float refClock = TIMCLOCK/(preScalar);
 	float frequency[NUM_FREQUENCY_CHANNELS];
-	uint8_t frequencyData[FREQUENCY_DATA_LENGTH];
+	uint8_t frequencyData[UCR_01_FRONT_FREQUENCY1_LENGTH];
 	FDCAN_TxHeaderTypeDef frequencyHeader = {
-	        .Identifier = FREQUENCY_CANID,
+	        .Identifier = UCR_01_FRONT_FREQUENCY1_FRAME_ID,
 	        .IdType = FDCAN_STANDARD_ID,
 	        .TxFrameType = FDCAN_DATA_FRAME,
 	        .DataLength = FDCAN_DLC_BYTES_16,
@@ -269,14 +276,21 @@ void txCAN100HzThreadEntry(
     	        frequency[i] = refClock / ChannelData[i].difference;
     	    }
     	}
-    	struct frequencyData_t frequencyStruct = {
+    	struct ucr_01_front_frequency1_t frequencyStruct1 = {
     	        .freq1 = frequency[0],
-    	        .freq2 = frequency[1],
+    	        .freq2 = frequency[1]
+    	};
+        struct ucr_01_front_frequency2_t frequencyStruct2 = {
     	        .freq3 = frequency[2],
     	        .freq4 = frequency[3]
     	};
-    	frequencyPack(frequencyData, &frequencyStruct, FREQUENCY_DATA_LENGTH);
     	tx_semaphore_put(&semaphoreFrequency);
+        frequencyHeader.Identifier = UCR_01_FRONT_FREQUENCY1_FRAME_ID;
+    	ucr_01_front_frequency1_pack(frequencyData, &frequencyStruct1, UCR_01_FRONT_FREQUENCY1_LENGTH);
+    	HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &frequencyHeader, frequencyData);
+
+        frequencyHeader.Identifier = UCR_01_FRONT_FREQUENCY2_FRAME_ID;
+    	ucr_01_front_frequency2_pack(frequencyData, &frequencyStruct2, UCR_01_FRONT_FREQUENCY2_LENGTH);
     	HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &frequencyHeader, frequencyData);
 
         tx_thread_sleep(10);
@@ -288,7 +302,7 @@ void txADS1ThreadInput(
 ){
 //    uint8_t rxData[3];
 //    uint8_t inputSet = 0;
-    uint8_t canTxData[20];
+    uint8_t canTxData[UCR_01_FRONT_STRAIN_GAUGES1_LENGTH];
 //    uint64_t combinedData[6];
     externalADC1.csPinPort = CS1_GPIO_Port;
     externalADC1.csPin = CS1_Pin;
@@ -359,18 +373,6 @@ void txADS1ThreadInput(
        .TxEventFifoControl = FDCAN_NO_TX_EVENTS,
        .MessageMarker = 0
    };
-
-   FDCAN_TxHeaderTypeDef exADC2Header = {
-       .Identifier = UCR_01_FRONT_STRAIN_GAUGES2_FRAME_ID,
-       .IdType = FDCAN_STANDARD_ID,
-       .TxFrameType = FDCAN_DATA_FRAME,
-       .DataLength = FDCAN_DLC_BYTES_20,
-       .ErrorStateIndicator = FDCAN_ESI_ACTIVE,
-       .BitRateSwitch = FDCAN_BRS_ON,
-       .FDFormat = FDCAN_FD_CAN,
-       .TxEventFifoControl = FDCAN_NO_TX_EVENTS,
-       .MessageMarker = 0
-   };
 //    uint32_t thing = 0;
     uint8_t status[1] = {0};
     uint32_t data1[6];
@@ -412,25 +414,51 @@ void txADS1ThreadInput(
 //        if(inputSet == 6){
 		struct ucr_01_front_strain_gauges1_t set1 = {
 			.gauge1 = data1[0],
-			.gauge2 = data1[1],
+			.gauge2 = data1[1]
+		};
+
+        struct ucr_01_front_strain_gauges2_t set2 = {
 			.gauge3 = data1[2],
-			.gauge4 = data1[3],
+			.gauge4 = data1[3]
+		};
+
+        struct ucr_01_front_strain_gauges3_t set3 = {
 			.gauge5 = data1[4],
 			.gauge6 = data1[5]
 		};
 
-		struct ucr_01_front_strain_gauges2_t set2 = {
-			.gauge1 = data2[0],
-			.gauge2 = data2[1],
-			.gauge3 = data2[2],
-			.gauge4 = data2[3],
-			.gauge5 = data2[4],
-			.gauge6 = data2[5]
+		struct ucr_01_front_strain_gauges4_t set4 = {
+			.gauge7 = data2[0],
+			.gauge8 = data2[1]
 		};
+
+        struct ucr_01_front_strain_gauges5_t set5 = {
+			.gauge9 = data2[2],
+			.gauge10 = data2[3]
+		};
+
+        struct ucr_01_front_strain_gauges6_t set6 = {
+			.gauge11 = data2[4],
+			.gauge12 = data2[5]
+		};
+        exADC1Header.Identifier = UCR_01_FRONT_STRAIN_GAUGES1_FRAME_ID;
 		ucr_01_front_strain_gauges1_pack(canTxData, &set1, UCR_01_FRONT_STRAIN_GAUGES1_LENGTH);
 		HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &exADC1Header, canTxData);
-		ucr_01_front_strain_gauges2_pack(canTxData, &set2, UCR_01_FRONT_STRAIN_GAUGES1_LENGTH);
-		HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &exADC2Header, canTxData);
+        exADC1Header.Identifier = UCR_01_FRONT_STRAIN_GAUGES2_FRAME_ID;
+		ucr_01_front_strain_gauges2_pack(canTxData, &set2, UCR_01_FRONT_STRAIN_GAUGES2_LENGTH);
+		HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &exADC1Header, canTxData);
+        exADC1Header.Identifier = UCR_01_FRONT_STRAIN_GAUGES3_FRAME_ID;
+		ucr_01_front_strain_gauges3_pack(canTxData, &set3, UCR_01_FRONT_STRAIN_GAUGES3_LENGTH);
+		HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &exADC1Header, canTxData);
+        exADC1Header.Identifier = UCR_01_FRONT_STRAIN_GAUGES4_FRAME_ID;
+		ucr_01_front_strain_gauges4_pack(canTxData, &set4, UCR_01_FRONT_STRAIN_GAUGES4_LENGTH);
+		HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &exADC1Header, canTxData);
+        exADC1Header.Identifier = UCR_01_FRONT_STRAIN_GAUGES5_FRAME_ID;
+		ucr_01_front_strain_gauges5_pack(canTxData, &set5, UCR_01_FRONT_STRAIN_GAUGES5_LENGTH);
+		HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &exADC1Header, canTxData);
+        exADC1Header.Identifier = UCR_01_FRONT_STRAIN_GAUGES6_FRAME_ID;
+		ucr_01_front_strain_gauges6_pack(canTxData, &set6, UCR_01_FRONT_STRAIN_GAUGES6_LENGTH);
+		HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &exADC1Header, canTxData);
 		tx_thread_sleep(3);
 //            inputSet = 0;
 //            tx_thread_sleep(10);
