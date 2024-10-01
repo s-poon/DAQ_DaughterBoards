@@ -106,22 +106,22 @@ UINT ThreadX_Init(
     }
 
 	if(tx_thread_create(&txCAN100HzThread, "txCAN100Hz", txCAN100HzThreadEntry, 0, pointer,
-					   TX_APP_STACK_SIZE, 14, TX_APP_THREAD_PREEMPTION_THRESHOLD,
+					   TX_APP_STACK_SIZE, 12, TX_APP_THREAD_PREEMPTION_THRESHOLD,
 					   TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS
     ){
 		return TX_THREAD_ERROR;
 	}
 
-    if(tx_byte_allocate(bytePool, (VOID**) &pointer, TX_APP_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS){
-        return TX_POOL_ERROR;
-    }
-
-	if(tx_thread_create(&txStrainThread, "txStrainThread", txADS1ThreadInput, 0, pointer,
-                       TX_APP_STACK_SIZE, 15, TX_APP_THREAD_PREEMPTION_THRESHOLD,
-                       TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS
-    ){
-        return TX_THREAD_ERROR;
-    }
+//    if(tx_byte_allocate(bytePool, (VOID**) &pointer, TX_APP_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS){
+//        return TX_POOL_ERROR;
+//    }
+//
+//	if(tx_thread_create(&txStrainThread, "txStrainThread", txADS1ThreadInput, 0, pointer,
+//                       TX_APP_STACK_SIZE, 15, TX_APP_THREAD_PREEMPTION_THRESHOLD,
+//                       TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS
+//    ){
+//        return TX_THREAD_ERROR;
+//    }
 
 	tx_semaphore_create(&semaphoreAnalog, "semaphoreAnalog", 0);
 	tx_semaphore_create(&semaphoreAero, "semaphoreAero", 0);
@@ -288,7 +288,7 @@ void txADS1ThreadInput(
 ){
 //    uint8_t rxData[3];
 //    uint8_t inputSet = 0;
-//    uint8_t canTxData[20];
+    uint8_t canTxData[20];
 //    uint64_t combinedData[6];
     externalADC1.csPinPort = CS1_GPIO_Port;
     externalADC1.csPin = CS1_Pin;
@@ -372,12 +372,22 @@ void txADS1ThreadInput(
        .MessageMarker = 0
    };
 //    uint32_t thing = 0;
-    uint8_t thing[1] = {0};
+    uint8_t status[1] = {0};
+    uint32_t data1[6];
+    uint32_t data2[6];
 
     while(1){
-        SendCommand(&externalADC1, OPCODE_START);
-        SendCommand(&externalADC2, OPCODE_START);
-        tx_thread_sleep(1);
+
+    	for(int i = 0; i < 6; i ++){
+    		WriteRegister(&externalADC1, REG_ADDR_INPMUX, adcMuxStates[i]);
+			WriteRegister(&externalADC2, REG_ADDR_INPMUX, adcMuxStates[i]);
+	        SendCommand(&externalADC1, OPCODE_START);
+	        SendCommand(&externalADC2, OPCODE_START);
+	        tx_thread_sleep(1);
+	        data1[i] = ReadADCData(&externalADC1, status, COMMAND);
+	        data2[i] = ReadADCData(&externalADC2, status, COMMAND);
+    	}
+//        tx_thread_sleep(1);
 //        tx_semaphore_get(&semaphoreExADC1, TX_WAIT_FOREVER);
         // for(int i = 0; i < 6; i ++){
 
@@ -400,16 +410,28 @@ void txADS1ThreadInput(
 //            inputSet = 0;
 //        }
 //        if(inputSet == 6){
-//            struct ucr_01_front_strain_gauges1_t stuff = {
-//                .gauge1 = combinedData[0],
-//                .gauge2 = combinedData[1],
-//                .gauge3 = combinedData[2],
-//                .gauge4 = combinedData[3],
-//                .gauge5 = combinedData[4],
-//                .gauge6 = combinedData[5]
-//            };
-//            ucr_01_front_strain_gauges1_pack(canTxData, &stuff, UCR_01_FRONT_STRAIN_GAUGES1_LENGTH);
-////            HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &exADC1Header, canTxData);
+		struct ucr_01_front_strain_gauges1_t set1 = {
+			.gauge1 = data1[0],
+			.gauge2 = data1[1],
+			.gauge3 = data1[2],
+			.gauge4 = data1[3],
+			.gauge5 = data1[4],
+			.gauge6 = data1[5]
+		};
+
+		struct ucr_01_front_strain_gauges2_t set2 = {
+			.gauge1 = data2[0],
+			.gauge2 = data2[1],
+			.gauge3 = data2[2],
+			.gauge4 = data2[3],
+			.gauge5 = data2[4],
+			.gauge6 = data2[5]
+		};
+		ucr_01_front_strain_gauges1_pack(canTxData, &set1, UCR_01_FRONT_STRAIN_GAUGES1_LENGTH);
+		HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &exADC1Header, canTxData);
+		ucr_01_front_strain_gauges2_pack(canTxData, &set2, UCR_01_FRONT_STRAIN_GAUGES1_LENGTH);
+		HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &exADC2Header, canTxData);
+		tx_thread_sleep(3);
 //            inputSet = 0;
 //            tx_thread_sleep(10);
 ////        for(int i = 0; i < 6; i++){
