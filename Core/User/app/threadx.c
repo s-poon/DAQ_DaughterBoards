@@ -112,16 +112,16 @@ UINT ThreadX_Init(
 		return TX_THREAD_ERROR;
 	}
 
-//    if(tx_byte_allocate(bytePool, (VOID**) &pointer, TX_APP_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS){
-//        return TX_POOL_ERROR;
-//    }
-//
-//	if(tx_thread_create(&txStrainThread, "txStrainThread", txADS1ThreadInput, 0, pointer,
-//                       TX_APP_STACK_SIZE, 15, TX_APP_THREAD_PREEMPTION_THRESHOLD,
-//                       TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS
-//    ){
-//        return TX_THREAD_ERROR;
-//    }
+    if(tx_byte_allocate(bytePool, (VOID**) &pointer, TX_APP_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS){
+        return TX_POOL_ERROR;
+    }
+
+	if(tx_thread_create(&txStrainThread, "txStrainThread", txADS1ThreadInput, 0, pointer,
+                       TX_APP_STACK_SIZE, 15, TX_APP_THREAD_PREEMPTION_THRESHOLD,
+                       TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS
+    ){
+        return TX_THREAD_ERROR;
+    }
 
 	tx_semaphore_create(&semaphoreAnalog, "semaphoreAnalog", 0);
 	tx_semaphore_create(&semaphoreAero, "semaphoreAero", 0);
@@ -381,6 +381,7 @@ void txADS1ThreadInput(
     	for(int i = 0; i < 6; i ++){
     		WriteRegister(&externalADC1, REG_ADDR_INPMUX, adcMuxStates[i]);
 			WriteRegister(&externalADC2, REG_ADDR_INPMUX, adcMuxStates[i]);
+	        tx_thread_sleep(1);
 	        SendCommand(&externalADC1, OPCODE_START);
 	        SendCommand(&externalADC2, OPCODE_START);
 	        tx_thread_sleep(1);
