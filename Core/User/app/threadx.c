@@ -313,7 +313,7 @@ void txADS1ThreadInput(
     HAL_GPIO_WritePin(STARTSYNC_1_GPIO_Port, STARTSYNC_1_Pin, RESET);
     HAL_GPIO_WritePin(STARTSYNC_2_GPIO_Port, STARTSYNC_2_Pin, RESET);
     // Delay to allow power supplies to settle
-    tx_thread_sleep(5);
+    tx_thread_sleep(1000);
 
     // Set up registers
     StartUpRoutine(&externalADC1);
@@ -381,8 +381,8 @@ void txADS1ThreadInput(
     	for(int i = 0; i < 6; i ++){
     		WriteRegister(&externalADC1, REG_ADDR_INPMUX, adcMuxStates[i]);
 			WriteRegister(&externalADC2, REG_ADDR_INPMUX, adcMuxStates[i]);
-	        tx_thread_sleep(1);
-	        SendCommand(&externalADC1, OPCODE_START);
+//			tx_thread_sleep(1);
+			SendCommand(&externalADC1, OPCODE_START);
 	        SendCommand(&externalADC2, OPCODE_START);
 	        tx_thread_sleep(1);
 	        data1[i] = ReadADCData(&externalADC1, status, COMMAND);
@@ -432,7 +432,7 @@ void txADS1ThreadInput(
 		HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &exADC1Header, canTxData);
 		ucr_01_front_strain_gauges2_pack(canTxData, &set2, UCR_01_FRONT_STRAIN_GAUGES1_LENGTH);
 		HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &exADC2Header, canTxData);
-		tx_thread_sleep(3);
+//		tx_thread_sleep();
 //            inputSet = 0;
 //            tx_thread_sleep(10);
 ////        for(int i = 0; i < 6; i++){
@@ -450,7 +450,7 @@ void txADS1ThreadInput(
 ////        ucr_01_front_strain_gauges1_pack(canTxData, &stuff, UCR_01_FRONT_STRAIN_GAUGES1_LENGTH);
 ////        HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &exADC1Header, canTxData);
 //        }
-        tx_thread_sleep(250);
+        tx_thread_sleep(5);
     }
 }
 
