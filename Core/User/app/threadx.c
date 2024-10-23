@@ -68,20 +68,20 @@ UINT ThreadX_Init(
 	    return TX_THREAD_ERROR;
 	}
 
-	if(tx_byte_allocate(bytePool, (VOID**) &pointer, TX_APP_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS){
-	    return TX_POOL_ERROR;
-    }
-
-	if(tx_thread_create(&txAnalogThread, "txAnalogThread", txAnalogThreadEntry, 0, pointer,
-						 TX_APP_STACK_SIZE, TX_ANALOG_PRIO, TX_APP_THREAD_PREEMPTION_THRESHOLD,
-						 TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS
-    ){
-	    return TX_THREAD_ERROR;
-	}
-
-    if(tx_byte_allocate(bytePool, (VOID**) &pointer, TX_APP_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS){
-        return TX_POOL_ERROR;
-    }
+//	if(tx_byte_allocate(bytePool, (VOID**) &pointer, TX_APP_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS){
+//	    return TX_POOL_ERROR;
+//    }
+//
+//	if(tx_thread_create(&txAnalogThread, "txAnalogThread", txAnalogThreadEntry, 0, pointer,
+//						 TX_APP_STACK_SIZE, TX_ANALOG_PRIO, TX_APP_THREAD_PREEMPTION_THRESHOLD,
+//						 TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS
+//    ){
+//	    return TX_THREAD_ERROR;
+//	}
+//
+//    if(tx_byte_allocate(bytePool, (VOID**) &pointer, TX_APP_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS){
+//        return TX_POOL_ERROR;
+//    }
 
 //	if(tx_thread_create(&txAeroThread, "txAeroThread", txAeroThreadEntry, 0, pointer,
 //					   TX_APP_STACK_SIZE, 12, TX_APP_THREAD_PREEMPTION_THRESHOLD,
@@ -101,16 +101,16 @@ UINT ThreadX_Init(
 //		return TX_THREAD_ERROR;
 //	}
 
-    if(tx_byte_allocate(bytePool, (VOID**) &pointer, TX_APP_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS){
-        return TX_POOL_ERROR;
-    }
-
-	if(tx_thread_create(&txCAN100HzThread, "txCAN100Hz", txCAN100HzThreadEntry, 0, pointer,
-					   TX_APP_STACK_SIZE, 12, TX_APP_THREAD_PREEMPTION_THRESHOLD,
-					   TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS
-    ){
-		return TX_THREAD_ERROR;
-	}
+//    if(tx_byte_allocate(bytePool, (VOID**) &pointer, TX_APP_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS){
+//        return TX_POOL_ERROR;
+//    }
+//
+//	if(tx_thread_create(&txCAN100HzThread, "txCAN100Hz", txCAN100HzThreadEntry, 0, pointer,
+//					   TX_APP_STACK_SIZE, 12, TX_APP_THREAD_PREEMPTION_THRESHOLD,
+//					   TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS
+//    ){
+//		return TX_THREAD_ERROR;
+//	}
 
     if(tx_byte_allocate(bytePool, (VOID**) &pointer, TX_APP_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS){
         return TX_POOL_ERROR;
@@ -349,7 +349,7 @@ void txADS1ThreadInput(
 //    };
 //    uint32_t combinedData[6];
    FDCAN_TxHeaderTypeDef exADC1Header = {
-       .Identifier = UCR_01_FRONT_STRAIN_GAUGES1_FRAME_ID,
+       .Identifier = UCR_01_REAR_STRAIN_GAUGES1_FRAME_ID,
        .IdType = FDCAN_STANDARD_ID,
        .TxFrameType = FDCAN_DATA_FRAME,
        .DataLength = FDCAN_DLC_BYTES_20,
@@ -361,7 +361,7 @@ void txADS1ThreadInput(
    };
 
    FDCAN_TxHeaderTypeDef exADC2Header = {
-       .Identifier = UCR_01_FRONT_STRAIN_GAUGES2_FRAME_ID,
+       .Identifier = UCR_01_REAR_STRAIN_GAUGES2_FRAME_ID,
        .IdType = FDCAN_STANDARD_ID,
        .TxFrameType = FDCAN_DATA_FRAME,
        .DataLength = FDCAN_DLC_BYTES_20,
@@ -411,7 +411,7 @@ void txADS1ThreadInput(
 //            inputSet = 0;
 //        }
 //        if(inputSet == 6){
-		struct ucr_01_front_strain_gauges1_t set1 = {
+		struct ucr_01_rear_strain_gauges1_t set1 = {
 			.gauge1 = data1[0],
 			.gauge2 = data1[1],
 			.gauge3 = data1[2],
@@ -420,7 +420,7 @@ void txADS1ThreadInput(
 			.gauge6 = data1[5]
 		};
 
-		struct ucr_01_front_strain_gauges2_t set2 = {
+		struct ucr_01_rear_strain_gauges2_t set2 = {
 			.gauge1 = data2[0],
 			.gauge2 = data2[1],
 			.gauge3 = data2[2],
@@ -428,9 +428,9 @@ void txADS1ThreadInput(
 			.gauge5 = data2[4],
 			.gauge6 = data2[5]
 		};
-		ucr_01_front_strain_gauges1_pack(canTxData, &set1, UCR_01_FRONT_STRAIN_GAUGES1_LENGTH);
+		ucr_01_front_strain_gauges1_pack(canTxData, &set1, UCR_01_REAR_STRAIN_GAUGES1_LENGTH);
 		HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &exADC1Header, canTxData);
-		ucr_01_front_strain_gauges2_pack(canTxData, &set2, UCR_01_FRONT_STRAIN_GAUGES1_LENGTH);
+		ucr_01_front_strain_gauges2_pack(canTxData, &set2, UCR_01_REAR_STRAIN_GAUGES1_LENGTH);
 		HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &exADC2Header, canTxData);
 //		tx_thread_sleep();
 //            inputSet = 0;
