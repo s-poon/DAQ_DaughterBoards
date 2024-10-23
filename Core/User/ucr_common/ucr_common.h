@@ -12,7 +12,7 @@
 #define UCR_NOT_OK          (1u)
 #define UCR_NPTR            (2u)
 
-#define TIMCLOCK			(170000000)
+#define TIMCLOCK			(160000000)
 
 typedef struct{
 	GPIO_TypeDef*	port;

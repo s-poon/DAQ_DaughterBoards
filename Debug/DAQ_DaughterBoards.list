@@ -5395,7 +5395,7 @@ void txCAN100HzThreadEntry(
     while(1){
  8001f4a:	e7ac      	b.n	8001ea6 <txCAN100HzThreadEntry+0x42>
  8001f4c:	200103b8 	.word	0x200103b8
- 8001f50:	0a21fe80 	.word	0x0a21fe80
+ 8001f50:	09896800 	.word	0x09896800
  8001f54:	0800d5fc 	.word	0x0800d5fc
  8001f58:	20010790 	.word	0x20010790
  8001f5c:	20010800 	.word	0x20010800
