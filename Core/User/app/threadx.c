@@ -336,7 +336,7 @@ void txADS1ThreadInput(
     WriteRegister(&externalADC2, REG_ADDR_REF, data);
 
     data = ADS_P_AIN0 + ADS_N_AIN1;
-    WriteRegister(&externalADC1, REG_ADDR_INPMUX, data);
+    WriteRegister(&externalADC1, REG_ADDR_INPMUX, adcMuxStates[1]);
     WriteRegister(&externalADC2, REG_ADDR_INPMUX, data);
 
 //
@@ -373,21 +373,23 @@ void txADS1ThreadInput(
    };
 //    uint32_t thing = 0;
     uint8_t status[1] = {0};
-    uint32_t data1[6];
+    uint32_t data1[6] = {0};
     uint32_t data2[6];
 
     while(1){
-
-    	for(int i = 0; i < 6; i ++){
-    		WriteRegister(&externalADC1, REG_ADDR_INPMUX, adcMuxStates[i]);
-			WriteRegister(&externalADC2, REG_ADDR_INPMUX, adcMuxStates[i]);
-//			tx_thread_sleep(1);
-			SendCommand(&externalADC1, OPCODE_START);
-	        SendCommand(&externalADC2, OPCODE_START);
-	        tx_thread_sleep(1);
-	        data1[i] = ReadADCData(&externalADC1, status, COMMAND);
-	        data2[i] = ReadADCData(&externalADC2, status, COMMAND);
-    	}
+    	SendCommand(&externalADC1, OPCODE_START);
+    	tx_thread_sleep(1);
+    	data1[0] = ReadADCData(&externalADC1, status, COMMAND);
+//    	for(int i = 0; i < 6; i ++){
+//    		WriteRegister(&externalADC1, REG_ADDR_INPMUX, adcMuxStates[i]);
+//			WriteRegister(&externalADC2, REG_ADDR_INPMUX, adcMuxStates[i]);
+////			tx_thread_sleep(1);
+//			SendCommand(&externalADC1, OPCODE_START);
+//	        SendCommand(&externalADC2, OPCODE_START);
+//	        tx_thread_sleep(1);
+//	        data1[i] = ReadADCData(&externalADC1, status, COMMAND);
+//	        data2[i] = ReadADCData(&externalADC2, status, COMMAND);
+//    	}
 //        tx_thread_sleep(1);
 //        tx_semaphore_get(&semaphoreExADC1, TX_WAIT_FOREVER);
         // for(int i = 0; i < 6; i ++){
@@ -420,18 +422,18 @@ void txADS1ThreadInput(
 			.gauge6 = data1[5]
 		};
 
-		struct ucr_01_rear_strain_gauges2_t set2 = {
-			.gauge1 = data2[0],
-			.gauge2 = data2[1],
-			.gauge3 = data2[2],
-			.gauge4 = data2[3],
-			.gauge5 = data2[4],
-			.gauge6 = data2[5]
-		};
-		ucr_01_front_strain_gauges1_pack(canTxData, &set1, UCR_01_REAR_STRAIN_GAUGES1_LENGTH);
+//		struct ucr_01_rear_strain_gauges2_t set2 = {
+//			.gauge1 = data2[0],
+//			.gauge2 = data2[1],
+//			.gauge3 = data2[2],
+//			.gauge4 = data2[3],
+//			.gauge5 = data2[4],
+//			.gauge6 = data2[5]
+//		};
+		ucr_01_rear_strain_gauges1_pack(canTxData, &set1, UCR_01_REAR_STRAIN_GAUGES1_LENGTH);
 		HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &exADC1Header, canTxData);
-		ucr_01_front_strain_gauges2_pack(canTxData, &set2, UCR_01_REAR_STRAIN_GAUGES1_LENGTH);
-		HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &exADC2Header, canTxData);
+//		ucr_01_front_strain_gauges2_pack(canTxData, &set2, UCR_01_REAR_STRAIN_GAUGES1_LENGTH);
+//		HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &exADC2Header, canTxData);
 //		tx_thread_sleep();
 //            inputSet = 0;
 //            tx_thread_sleep(10);
@@ -450,7 +452,7 @@ void txADS1ThreadInput(
 ////        ucr_01_front_strain_gauges1_pack(canTxData, &stuff, UCR_01_FRONT_STRAIN_GAUGES1_LENGTH);
 ////        HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &exADC1Header, canTxData);
 //        }
-        tx_thread_sleep(5);
+        tx_thread_sleep(4);
     }
 }
 
