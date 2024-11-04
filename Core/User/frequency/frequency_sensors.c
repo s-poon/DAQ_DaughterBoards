@@ -24,6 +24,7 @@ uint8_t FrequencyInit(void){
     for(int i = 0; i < NUM_FREQUENCY_CHANNELS; i ++){
         ChannelData[i].firstValue = 0;
         ChannelData[i].secondValue = 0;
+        ChannelData[i].difference = 0;
         ChannelData[i].isFirstCapture = false;
 //        ChannelData[i].zeroReset = true;
     }
