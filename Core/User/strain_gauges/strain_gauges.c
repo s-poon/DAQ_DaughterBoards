@@ -233,7 +233,7 @@ int32_t ReadADCData(
             data[1] = rxData[dataPosition + 1];
             data[2] = rxData[dataPosition + 2];
             data[3] = rxData[dataPosition + 3];
-            bool error = (bool) getCRC(data, 4, CRC_INITIAL_SEED);
+            bool error = (bool) getCRC(data, 4, CRC_INITIAL_SEED); 
 
             if(error){
                 while(1);

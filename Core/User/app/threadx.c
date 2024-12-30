@@ -322,12 +322,13 @@ void txADS1ThreadInput(
 //    WriteRegister(&externalADC1, STATUS_ADDR_MASK, data);
 //
 //    // Set the PGA
-    uint8_t data = ADS_DELAY_14 + ADS_PGA_ENABLED + ADS_GAIN_64;
+    uint8_t data = ADS_DELAY_64 + ADS_PGA_ENABLED + ADS_GAIN_64;
     WriteRegister(&externalADC1, REG_ADDR_PGA, data);
     WriteRegister(&externalADC2, REG_ADDR_PGA, data);
 //
 //    // Use single shot conversions/
-    data = ADS_CONVMODE_SS + ADS_DR_4000 + ADS_FILTERTYPE_LL;
+//  Using continuous conversion mode
+    data = ADS_CONVMODE_CONT + ADS_DR_4000 + ADS_FILTERTYPE_LL;
     WriteRegister(&externalADC1, REG_ADDR_DATARATE, data);
     WriteRegister(&externalADC2, REG_ADDR_DATARATE, data);
 
