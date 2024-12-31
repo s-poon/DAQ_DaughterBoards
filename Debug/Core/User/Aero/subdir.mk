@@ -7,11 +7,11 @@
 C_SRCS += \
 ../Core/User/aero/aero_sensors.c 
 
-OBJS += \
-./Core/User/aero/aero_sensors.o 
-
 C_DEPS += \
 ./Core/User/aero/aero_sensors.d 
+
+OBJS += \
+./Core/User/aero/aero_sensors.o 
 
 
 # Each subdirectory must supply rules for building sources it contributes

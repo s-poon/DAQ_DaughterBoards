@@ -7,7 +7,7 @@
 
 
 #include "strain_gauges.h"
-#include "threadx.h"
+#include "threadx.hpp"
 #include "ucr_common.h"
 #include "spi.h"
 #include "../../vendor_generated/ti/crc.h"
@@ -25,7 +25,6 @@ const uint8_t adcMuxStates[] = {
 
 const uint8_t registerStates[] = {
     0x00
-
 };
 
 bool StartUpRoutine(ads124S08Control_t* device){

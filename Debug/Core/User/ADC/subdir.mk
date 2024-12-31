@@ -7,11 +7,11 @@
 C_SRCS += \
 ../Core/User/adc/analog_control.c 
 
-OBJS += \
-./Core/User/adc/analog_control.o 
-
 C_DEPS += \
 ./Core/User/adc/analog_control.d 
+
+OBJS += \
+./Core/User/adc/analog_control.o 
 
 
 # Each subdirectory must supply rules for building sources it contributes

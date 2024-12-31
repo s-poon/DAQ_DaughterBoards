@@ -7,11 +7,11 @@
 C_SRCS += \
 ../Core/User/frequency/frequency_sensors.c 
 
-OBJS += \
-./Core/User/frequency/frequency_sensors.o 
-
 C_DEPS += \
 ./Core/User/frequency/frequency_sensors.d 
+
+OBJS += \
+./Core/User/frequency/frequency_sensors.o 
 
 
 # Each subdirectory must supply rules for building sources it contributes

@@ -1,0 +1,8 @@
+../Core/User/strain_gauges/ExADC.cpp:4:1:ExADC::ExADC(GPIOPin, GPIOPin, GPIOPin, GPIOPin)	1
+../Core/User/strain_gauges/ExADC.cpp:10:6:bool ExADC::StartUpRoutine()	2
+../Core/User/strain_gauges/ExADC.cpp:37:6:void ExADC::ToggleReset()	1
+../Core/User/strain_gauges/ExADC.cpp:43:9:uint8_t ExADC::ReadRegister(uint16_t)	1
+../Core/User/strain_gauges/ExADC.cpp:55:9:uint8_t ExADC::ReadMultipleRegisters(uint16_t, uint16_t)	2
+../Core/User/strain_gauges/ExADC.cpp:75:9:uint8_t ExADC::WriteRegister(uint16_t, uint8_t)	1
+../Core/User/strain_gauges/ExADC.cpp:91:9:uint8_t ExADC::WriteMultipleRegisters(uint16_t, uint16_t, uint8_t*)	2
+../Core/User/strain_gauges/ExADC.cpp:115:6:void ExADC::RestoreRegisterDefaults()	1

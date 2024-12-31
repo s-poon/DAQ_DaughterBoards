@@ -4,6 +4,9 @@
 ################################################################################
 
 # Add inputs and outputs from these tool invocations to the build variables 
+S_UPPER_SRCS += \
+../Core/Src/tx_initialize_low_level.S 
+
 C_SRCS += \
 ../Core/Src/adc.c \
 ../Core/Src/app_threadx.c \
@@ -23,8 +26,24 @@ C_SRCS += \
 ../Core/Src/tim.c \
 ../Core/Src/usart.c 
 
-S_UPPER_SRCS += \
-../Core/Src/tx_initialize_low_level.S 
+C_DEPS += \
+./Core/Src/adc.d \
+./Core/Src/app_threadx.d \
+./Core/Src/crc.d \
+./Core/Src/dma.d \
+./Core/Src/fdcan.d \
+./Core/Src/gpio.d \
+./Core/Src/i2c.d \
+./Core/Src/main.d \
+./Core/Src/spi.d \
+./Core/Src/stm32g4xx_hal_msp.d \
+./Core/Src/stm32g4xx_hal_timebase_tim.d \
+./Core/Src/stm32g4xx_it.d \
+./Core/Src/syscalls.d \
+./Core/Src/sysmem.d \
+./Core/Src/system_stm32g4xx.d \
+./Core/Src/tim.d \
+./Core/Src/usart.d 
 
 OBJS += \
 ./Core/Src/adc.o \
@@ -48,25 +67,6 @@ OBJS += \
 
 S_UPPER_DEPS += \
 ./Core/Src/tx_initialize_low_level.d 
-
-C_DEPS += \
-./Core/Src/adc.d \
-./Core/Src/app_threadx.d \
-./Core/Src/crc.d \
-./Core/Src/dma.d \
-./Core/Src/fdcan.d \
-./Core/Src/gpio.d \
-./Core/Src/i2c.d \
-./Core/Src/main.d \
-./Core/Src/spi.d \
-./Core/Src/stm32g4xx_hal_msp.d \
-./Core/Src/stm32g4xx_hal_timebase_tim.d \
-./Core/Src/stm32g4xx_it.d \
-./Core/Src/syscalls.d \
-./Core/Src/sysmem.d \
-./Core/Src/system_stm32g4xx.d \
-./Core/Src/tim.d \
-./Core/Src/usart.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

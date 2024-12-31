@@ -7,11 +7,11 @@
 C_SRCS += \
 ../Core/vendor_generated/can_tools/can.c 
 
-OBJS += \
-./Core/vendor_generated/can_tools/can.o 
-
 C_DEPS += \
 ./Core/vendor_generated/can_tools/can.d 
+
+OBJS += \
+./Core/vendor_generated/can_tools/can.o 
 
 
 # Each subdirectory must supply rules for building sources it contributes

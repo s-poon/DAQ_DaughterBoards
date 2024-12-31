@@ -10,7 +10,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "threadx.h"
+#include "threadx.hpp"
 
 #define NUM_FREQUENCY_CHANNELS		(4u)
 #define FREQUENCY_RESET_TIME        (5000u)

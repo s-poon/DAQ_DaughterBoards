@@ -23,7 +23,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "threadx.h"
+#include "threadx.hpp"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

@@ -7,7 +7,7 @@
 
 
 #include "analog_control.h"
-#include "threadx.h"
+#include "threadx.hpp"
 #include "aero_sensors.h"
 
 

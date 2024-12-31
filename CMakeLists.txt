@@ -12,6 +12,9 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS ON)
 
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS ON)
 
 # Define the build type
 if(NOT CMAKE_BUILD_TYPE)
@@ -48,11 +51,25 @@ target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
 # Add sources to executable
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user sources here
+    Core/User/app/threadx.c
+    Core/User/frequency/frequency_sensors.c
+    Core/User/gpio/exti.c
+    Core/User/strain_gauges/strain_gauges.c
+    Core/vendor_generated/can_tools/can.c
+    Core/vendor_generated/ti/crc.c
 )
 
 # Add include paths
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined include paths
+    Core/User/app
+    Core/User/frequency
+    Core/User/gpio
+    Core/User/i2c
+    Core/User/strain_gauges
+    Core/User/ucr_common
+    Core/vendor_generated/can_tools
+    Core/vendor_generated/ti
 )
 
 # Add project symbols (macros)

@@ -12,7 +12,9 @@
                 "${workspaceFolder}/Core/Inc",
                 "${workspaceFolder}/Middlewares/ST/threadx/common/inc",
                 "${workspaceFolder}/Middlewares/ST/threadx/ports/cortex_m4/gnu/inc",
-                "${workspaceFolder}/Core/User"
+                "${workspaceFolder}/Core/User",
+                "${workspaceFolder}/Core/User/gpio",
+                "${workspaceFolder}/Core/User/strain_gauges"
             ]
         }
     ]

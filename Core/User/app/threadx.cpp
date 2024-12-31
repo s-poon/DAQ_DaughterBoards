@@ -4,15 +4,20 @@
  *  Created on: Apr 20, 2024
  *      Author: Steven
  */
-#include "threadx.h"
+#include "threadx.hpp"
 #include "ucr_common.h"
 #include "analog_control_datatypes.h"
+#include "analog_control.h"
 #include "aero_sensors.h"
 #include "frequency_sensors.h"
 #include "tim.h"
 #include "../../vendor_generated/can_tools/can.h"
 #include "strain_gauges.h"
 #include "spi.h"
+#include "fdcan.h"
+#include "adc.h"
+//#include "GPIOPin.hpp"
+#include "ADS124S08.hpp"
 
 #include "../../vendor_generated/can_tools/can_api.h"
 
@@ -48,92 +53,92 @@ static const uint8_t analogSwitchStates[NUM_ADC_CHANNELS] = {
 	SET_12V
 };
 
-
-UINT ThreadX_Init(
-        VOID *memory_ptr
-){
-    UINT ret = TX_SUCCESS;
-
-	TX_BYTE_POOL *bytePool = (TX_BYTE_POOL*)memory_ptr;
-	CHAR *pointer;
-
-	if(tx_byte_allocate(bytePool, (VOID**) &pointer, TX_APP_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS){
-	    return TX_POOL_ERROR;
-	}
-
-	if(tx_thread_create(&txMainThread, "txMainThread", txMainThreadEntry, 0, pointer,
-						 TX_APP_STACK_SIZE, TX_APP_THREAD_PRIO, TX_APP_THREAD_PREEMPTION_THRESHOLD,
-						 TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS
+extern "C"{
+    UINT ThreadX_Init(
+            VOID *memory_ptr
     ){
-	    return TX_THREAD_ERROR;
-	}
+        UINT ret = TX_SUCCESS;
 
-	if(tx_byte_allocate(bytePool, (VOID**) &pointer, TX_APP_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS){
-	    return TX_POOL_ERROR;
+        TX_BYTE_POOL *bytePool = (TX_BYTE_POOL*)memory_ptr;
+        CHAR *pointer;
+
+        if(tx_byte_allocate(bytePool, (VOID**) &pointer, TX_APP_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS){
+            return TX_POOL_ERROR;
+        }
+
+        if(tx_thread_create(&txMainThread, "txMainThread", txMainThreadEntry, 0, pointer,
+                            TX_APP_STACK_SIZE, TX_APP_THREAD_PRIO, TX_APP_THREAD_PREEMPTION_THRESHOLD,
+                            TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS
+        ){
+            return TX_THREAD_ERROR;
+        }
+
+        if(tx_byte_allocate(bytePool, (VOID**) &pointer, TX_APP_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS){
+            return TX_POOL_ERROR;
+        }
+
+        if(tx_thread_create(&txAnalogThread, "txAnalogThread", txAnalogThreadEntry, 0, pointer,
+                            TX_APP_STACK_SIZE, TX_ANALOG_PRIO, TX_APP_THREAD_PREEMPTION_THRESHOLD,
+                            TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS
+        ){
+            return TX_THREAD_ERROR;
+        }
+
+        if(tx_byte_allocate(bytePool, (VOID**) &pointer, TX_APP_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS){
+            return TX_POOL_ERROR;
+        }
+
+    //	if(tx_thread_create(&txAeroThread, "txAeroThread", txAeroThreadEntry, 0, pointer,
+    //					   TX_APP_STACK_SIZE, 12, TX_APP_THREAD_PREEMPTION_THRESHOLD,
+    //					   TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS
+    //    ){
+    //		return TX_THREAD_ERROR;
+    //	}
+
+    //    if(tx_byte_allocate(bytePool, (VOID**) &pointer, TX_APP_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS){
+    //        return TX_POOL_ERROR;
+    //    }
+    //
+    //	if(tx_thread_create(&txCAN500HzThread, "txCAN500Hz", txCAN500HzThreadEntry, 0, pointer,
+    //					   TX_APP_STACK_SIZE, 13, TX_APP_THREAD_PREEMPTION_THRESHOLD,
+    //					   TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS
+    //    ){
+    //		return TX_THREAD_ERROR;
+    //	}
+
+        if(tx_byte_allocate(bytePool, (VOID**) &pointer, TX_APP_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS){
+            return TX_POOL_ERROR;
+        }
+
+        if(tx_thread_create(&txCAN100HzThread, "txCAN100Hz", txCAN100HzThreadEntry, 0, pointer,
+                        TX_APP_STACK_SIZE, 12, TX_APP_THREAD_PREEMPTION_THRESHOLD,
+                        TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS
+        ){
+            return TX_THREAD_ERROR;
+        }
+
+        if(tx_byte_allocate(bytePool, (VOID**) &pointer, TX_APP_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS){
+            return TX_POOL_ERROR;
+        }
+
+        if(tx_thread_create(&txStrainThread, "txStrainThread", txADS1ThreadInput, 0, pointer,
+                        TX_APP_STACK_SIZE, 15, TX_APP_THREAD_PREEMPTION_THRESHOLD,
+                        TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS
+        ){
+            return TX_THREAD_ERROR;
+        }
+
+        tx_semaphore_create(&semaphoreAnalog, "semaphoreAnalog", 0);
+        tx_semaphore_create(&semaphoreAero, "semaphoreAero", 0);
+        tx_semaphore_create(&semaphoreFrequency, "semaphoreFrequency", 1);
+        tx_semaphore_create(&semaphoreExADC1, "semaphoreExADC1", 0);
+        tx_semaphore_create(&semaphoreExADC2, "semaphoreExADC2", 0);
+        tx_semaphore_create(&semaphoreSPI, "semaphoreSPI", 0);
+        
+
+        return ret;
     }
-
-	if(tx_thread_create(&txAnalogThread, "txAnalogThread", txAnalogThreadEntry, 0, pointer,
-						 TX_APP_STACK_SIZE, TX_ANALOG_PRIO, TX_APP_THREAD_PREEMPTION_THRESHOLD,
-						 TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS
-    ){
-	    return TX_THREAD_ERROR;
-	}
-
-    if(tx_byte_allocate(bytePool, (VOID**) &pointer, TX_APP_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS){
-        return TX_POOL_ERROR;
-    }
-
-//	if(tx_thread_create(&txAeroThread, "txAeroThread", txAeroThreadEntry, 0, pointer,
-//					   TX_APP_STACK_SIZE, 12, TX_APP_THREAD_PREEMPTION_THRESHOLD,
-//					   TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS
-//    ){
-//		return TX_THREAD_ERROR;
-//	}
-
-//    if(tx_byte_allocate(bytePool, (VOID**) &pointer, TX_APP_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS){
-//        return TX_POOL_ERROR;
-//    }
-//
-//	if(tx_thread_create(&txCAN500HzThread, "txCAN500Hz", txCAN500HzThreadEntry, 0, pointer,
-//					   TX_APP_STACK_SIZE, 13, TX_APP_THREAD_PREEMPTION_THRESHOLD,
-//					   TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS
-//    ){
-//		return TX_THREAD_ERROR;
-//	}
-
-    if(tx_byte_allocate(bytePool, (VOID**) &pointer, TX_APP_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS){
-        return TX_POOL_ERROR;
-    }
-
-	if(tx_thread_create(&txCAN100HzThread, "txCAN100Hz", txCAN100HzThreadEntry, 0, pointer,
-					   TX_APP_STACK_SIZE, 12, TX_APP_THREAD_PREEMPTION_THRESHOLD,
-					   TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS
-    ){
-		return TX_THREAD_ERROR;
-	}
-
-    if(tx_byte_allocate(bytePool, (VOID**) &pointer, TX_APP_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS){
-        return TX_POOL_ERROR;
-    }
-
-	if(tx_thread_create(&txStrainThread, "txStrainThread", txADS1ThreadInput, 0, pointer,
-                       TX_APP_STACK_SIZE, 15, TX_APP_THREAD_PREEMPTION_THRESHOLD,
-                       TX_APP_THREAD_TIME_SLICE, TX_APP_THREAD_AUTO_START) != TX_SUCCESS
-    ){
-        return TX_THREAD_ERROR;
-    }
-
-	tx_semaphore_create(&semaphoreAnalog, "semaphoreAnalog", 0);
-	tx_semaphore_create(&semaphoreAero, "semaphoreAero", 0);
-	tx_semaphore_create(&semaphoreFrequency, "semaphoreFrequency", 1);
-	tx_semaphore_create(&semaphoreExADC1, "semaphoreExADC1", 0);
-	tx_semaphore_create(&semaphoreExADC2, "semaphoreExADC2", 0);
-	tx_semaphore_create(&semaphoreSPI, "semaphoreSPI", 0);
-    
-
-	return ret;
 }
-
 
 void txMainThreadEntry(
     ULONG threadInput
@@ -290,34 +295,37 @@ void txADS1ThreadInput(
 //    uint8_t inputSet = 0;
     uint8_t canTxData[20];
 //    uint64_t combinedData[6];
-    externalADC1.csPinPort = CS1_GPIO_Port;
-    externalADC1.csPin = CS1_Pin;
-    externalADC1.startSyncPinPort = STARTSYNC_1_GPIO_Port;
-    externalADC1.startSyncPin = STARTSYNC_1_Pin;
-    externalADC1.resetPinPort = RESET1_GPIO_Port;
-    externalADC1.resetPin = RESET1_Pin;
-    externalADC1.drdyPinPort = DRDY1_GPIO_Port;
-    externalADC1.drdyPin = DRDY1_Pin;
 
-    externalADC2.csPinPort = CS2_GPIO_Port;
-    externalADC2.csPin = CS2_Pin;
-    externalADC2.startSyncPinPort = STARTSYNC_2_GPIO_Port;
-    externalADC2.startSyncPin = STARTSYNC_2_Pin;
-    externalADC2.resetPinPort = RESET2_GPIO_Port;
-    externalADC2.resetPin = RESET2_Pin;
-    externalADC2.drdyPinPort = DRDY2_GPIO_Port;
-    externalADC2.drdyPin = DRDY2_Pin;
 
-    HAL_GPIO_WritePin(CS1_GPIO_Port, CS1_Pin, SET);
-    HAL_GPIO_WritePin(CS2_GPIO_Port, CS2_Pin, SET);
-    HAL_GPIO_WritePin(STARTSYNC_1_GPIO_Port, STARTSYNC_1_Pin, RESET);
-    HAL_GPIO_WritePin(STARTSYNC_2_GPIO_Port, STARTSYNC_2_Pin, RESET);
+    GPIOPin exADC1CSPin = GPIOPin(CS1_GPIO_Port, CS1_Pin);
+    GPIOPin exADC1StartSyncPin = GPIOPin(STARTSYNC_1_GPIO_Port, STARTSYNC_1_Pin);
+    GPIOPin exADC1ResetPin = GPIOPin(RESET1_GPIO_Port, RESET1_Pin);
+    GPIOPin exADC1DRDYPin = GPIOPin(DRDY1_GPIO_Port, DRDY1_Pin);
+    
+    GPIOPin exADC2CSPin = GPIOPin(CS2_GPIO_Port, CS2_Pin);
+    GPIOPin exADC2StartSyncPin = GPIOPin(STARTSYNC_2_GPIO_Port, STARTSYNC_2_Pin);
+    GPIOPin exADC2ResetPin = GPIOPin(RESET2_GPIO_Port, RESET2_Pin);
+    GPIOPin exADC2DRDYPin = GPIOPin(DRDY2_GPIO_Port, DRDY2_Pin);
+
+    ADS124S08 adc1(exADC1StartSyncPin, exADC1CSPin, exADC1DRDYPin, exADC1ResetPin);
+    ADS124S08 adc2(exADC2StartSyncPin, exADC2CSPin, exADC2DRDYPin, exADC2ResetPin);
+    
+
+    adc1.csPin.Set();
+    adc2.csPin.Set();
+
+    adc1.startSyncPin.Clear();
+    adc2.startSyncPin.Clear();
+
     // Delay to allow power supplies to settle
     tx_thread_sleep(1000);
 
     // Set up registers
     StartUpRoutine(&externalADC1);
     StartUpRoutine(&externalADC2);
+
+    adc1.StartUpRoutine();
+    adc2.StartUpRoutine();
 
 //    WriteRegister(&externalADC1, STATUS_ADDR_MASK, data);
 //

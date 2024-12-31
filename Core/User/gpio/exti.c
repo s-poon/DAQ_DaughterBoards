@@ -8,7 +8,7 @@
 #include "exti.h"
 #include "stdint.h"
 #include "main.h"
-#include "threadx.h"
+#include "threadx.hpp"
 //
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
     if(GPIO_Pin == DRDY1_Pin){

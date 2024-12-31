@@ -1,8 +1,8 @@
-../Core/User/app/threadx.c:52:6:ThreadX_Init	10
-../Core/User/app/threadx.c:138:6:txMainThreadEntry	1
-../Core/User/app/threadx.c:155:6:txAnalogThreadEntry	1
-../Core/User/app/threadx.c:190:6:txAeroThreadEntry	3
-../Core/User/app/threadx.c:232:6:txCAN500HzThreadEntry	1
-../Core/User/app/threadx.c:239:6:txCAN100HzThreadEntry	3
-../Core/User/app/threadx.c:286:6:txADS1ThreadInput	2
-../Core/User/app/threadx.c:457:6:txADS2ThreadInput	1
+../Core/User/app/threadx.cpp:57:10:UINT ThreadX_Init(void*)	10
+../Core/User/app/threadx.cpp:143:6:void txMainThreadEntry(ULONG)	1
+../Core/User/app/threadx.cpp:160:6:void txAnalogThreadEntry(ULONG)	1
+../Core/User/app/threadx.cpp:195:6:void txAeroThreadEntry(ULONG)	3
+../Core/User/app/threadx.cpp:237:6:void txCAN500HzThreadEntry(ULONG)	1
+../Core/User/app/threadx.cpp:244:6:void txCAN100HzThreadEntry(ULONG)	3
+../Core/User/app/threadx.cpp:291:6:void txADS1ThreadInput(ULONG)	2
+../Core/User/app/threadx.cpp:465:6:void txADS2ThreadInput(ULONG)	1

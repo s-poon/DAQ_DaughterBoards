@@ -7,10 +7,11 @@
 
 #include "frequency_sensors.h"
 #include "app_threadx.h"
-#include "threadx.h"
+#include "threadx.hpp"
 #include "tim.h"
 #include <stdbool.h>
 #include <stdio.h>
+#include "ucr_common.h"
 
 frequency_t ChannelData[4];
 

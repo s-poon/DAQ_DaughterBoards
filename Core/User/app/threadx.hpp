@@ -11,8 +11,13 @@
 #include "app_threadx.h"
 #include "frequency_datatypes.h"
 
-
-UINT ThreadX_Init(VOID *memory_ptr);
+#ifdef __cplusplus
+extern "C"{
+#endif
+    UINT ThreadX_Init(VOID *memory_ptr);
+#ifdef __cplusplus
+}
+#endif
 
 void txMainThreadEntry(ULONG threadInput);
 void txAnalogThreadEntry(ULONG threadInput);
