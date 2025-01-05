@@ -14,14 +14,14 @@
 #define NUM_REGISTERS           (18u)
 
 #define ADS124S08_FCLK		    (4096000)   // Standard internal clock frequency
-#define ADS124S08_BITRES	    (24u)       // ADC resolution
+#define ADS124S08_BITRES	    ((uint8_t) 24)       // ADC resolution
 
-#define DATA_LENGTH             (3u)
+#define DATA_LENGTH             ((uint8_t) 3)
 
-#define COMMAND_LENGTH			(2u)
-#define STATUS_LENGTH			(1u)
-#define CRC_LENGTH				(1u)
-#define RDATA_COMMAND_LENGTH	(1u)
+#define COMMAND_LENGTH			((uint8_t) 2)
+#define STATUS_LENGTH			((uint8_t) 1)
+#define CRC_LENGTH				((uint8_t) 1)
+#define RDATA_COMMAND_LENGTH	((uint8_t) 1)
 
 /********************************************************************************//**
  * 

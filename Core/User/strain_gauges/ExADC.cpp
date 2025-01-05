@@ -7,6 +7,8 @@ ExADC::ExADC(GPIOPin startSyncPin, GPIOPin csPin, GPIOPin drdyPin, GPIOPin reset
     RestoreRegisterDefaults();
 };
 
+ExADC::~ExADC(){}
+
 bool ExADC::StartUpRoutine(){
     uint8_t status;
 
@@ -40,10 +42,20 @@ void ExADC::ToggleReset(){
     resetPin.Set();
 }
 
-uint8_t ExADC::ReadRegister(
-    uint16_t address
+uint8_t ExADC::SendCommand(
+    uint8_t command
 ){
-	uint8_t txData[COMMAND_LENGTH + 1] = { OPCODE_RREG | (address & OPCODE_RWREG_MASK), 0, 0 };
+    uint8_t retVal = UCR_OK;
+    csPin.Clear();
+    HAL_SPI_Transmit(&hspi4, &command, 1, 500);
+    csPin.Set();
+    return retVal;
+}
+
+uint8_t ExADC::ReadRegister(
+    uint8_t address
+){
+	uint8_t txData[COMMAND_LENGTH + 1] = { (uint8_t) (OPCODE_RREG | (address & OPCODE_RWREG_MASK)), 0, 0 };
 	uint8_t rxData[COMMAND_LENGTH + 1] = {0, 0, 0};
 	csPin.Clear();
 	HAL_SPI_TransmitReceive(&hspi4, txData, rxData, COMMAND_LENGTH + 1, 500);
@@ -53,8 +65,8 @@ uint8_t ExADC::ReadRegister(
 }
 
 uint8_t ExADC::ReadMultipleRegisters(
-    uint16_t startAddress,
-    uint16_t readCount
+    uint8_t startAddress,
+    uint8_t readCount
 ){
     uint8_t retVal = UCR_OK;
     uint8_t txData[COMMAND_LENGTH + NUM_REGISTERS] = {0};
@@ -73,11 +85,11 @@ uint8_t ExADC::ReadMultipleRegisters(
 }
 
 uint8_t ExADC::WriteRegister(
-	uint16_t address,
+	uint8_t address,
 	uint8_t data
 ){
 	uint8_t retVal = UCR_OK;
-	uint8_t txData[COMMAND_LENGTH + 1] = { OPCODE_WREG | (address & OPCODE_RWREG_MASK), 0, data};
+	uint8_t txData[COMMAND_LENGTH + 1] = { (uint8_t) (OPCODE_WREG | (address & OPCODE_RWREG_MASK)), 0, data};
 	uint8_t rxData[COMMAND_LENGTH + 1] = {0, 0, 0};
 
 	csPin.Clear();
@@ -89,8 +101,8 @@ uint8_t ExADC::WriteRegister(
 
 
 uint8_t ExADC::WriteMultipleRegisters(
-    uint16_t startAddress,
-    uint16_t writeCount,
+    uint8_t startAddress,
+    uint8_t writeCount,
     uint8_t* data
 ){
     uint8_t retVal = UCR_OK;

@@ -1,8 +1,10 @@
 #include "ADS124S08.hpp"
-#include "../../vendor_generated/ti/crc.h"
+extern "C"{
+    #include "../../vendor_generated/ti/crc.h"
+}
 
 ADS124S08::ADS124S08(GPIOPin startSyncPin, GPIOPin csPin, GPIOPin drdyPin, GPIOPin resetPin)
-    : startSyncPin(startSyncPin), csPin(csPin), drdyPin(drdyPin), resetPin(resetPin)
+    : ExADC(startSyncPin, csPin, drdyPin, resetPin)
 {
     RestoreRegisterDefaults();
 };
