@@ -5,7 +5,7 @@ ExADC::ExADC(GPIOPin startSyncPin, GPIOPin csPin, GPIOPin drdyPin, GPIOPin reset
     : startSyncPin(startSyncPin), csPin(csPin), drdyPin(drdyPin), resetPin(resetPin)
 {
     RestoreRegisterDefaults();
-};
+}
 
 ExADC::~ExADC(){}
 

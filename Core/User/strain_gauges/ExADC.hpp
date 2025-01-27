@@ -19,6 +19,14 @@ class ExADC{
             uint8_t mode
         )= 0;
 
+        virtual int32_t ReadWriteADCData(
+            uint8_t* deviceStatus,
+            uint8_t mode,
+            uint8_t startAdress,
+            uint8_t writeCount,
+            uint8_t* data
+        );
+
         uint8_t ReadRegister(
             uint8_t address
         );
